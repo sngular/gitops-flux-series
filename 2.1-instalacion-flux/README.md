@@ -55,11 +55,11 @@ export GITHUB_TOKEN=<your-token>
 
 ```bash
 flux bootstrap github \
---owner=sngular \
---repository=gitops-flux-series-demo \
---branch=main \
---private \
---path=./cluster/namespaces
+  --owner=sngular \
+  --repository=gitops-flux-series-demo \
+  --branch=main \
+  --private \
+  --path=./cluster/namespaces
 ```
 
 Ver los componentes que han sido instalados
