@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gitops-series
+  namespace: gitops-series
+spec:
+  containers:
+    - name: gitops-series
+      image: ghcr.io/mmorejon/erase-una-vez-1:v0.3.0
+      env:
+        - name: CHARACTER
+          value: "una serie de gitops."
+      resources:
+        requests:
+          cpu: 10m
+          memory: 30m
+        limits:
+          cpu: 10m
+          memory: 30m
