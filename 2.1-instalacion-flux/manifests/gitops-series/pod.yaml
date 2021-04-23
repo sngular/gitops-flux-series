@@ -9,7 +9,7 @@ spec:
       image: ghcr.io/sngular/gitops-flux-series-1:v0.1.0
       env:
         - name: CHARACTER
-          value: "una serie de gitops."
+          value: "sngular utiliza gitops en sus entornos"
       resources:
         requests:
           cpu: 10m
