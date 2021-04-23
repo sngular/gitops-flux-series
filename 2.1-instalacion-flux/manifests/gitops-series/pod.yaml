@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
     - name: gitops-series
-      image: ghcr.io/mmorejon/erase-una-vez-1:v0.3.0
+      image: ghcr.io/sngular/gitops-flux-series-1:v0.1.0
       env:
         - name: CHARACTER
           value: "una serie de gitops."
