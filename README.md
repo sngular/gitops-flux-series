@@ -3,8 +3,8 @@
 A continuación se pueden consultar las guías de las diferentes secciones de la serie:
 
 - [2.1 Instalación de Flux](./2.1-instalacion-flux/README.md)
-- [3.1 Source: GitRepository](./)
-- [4.1 Secrets: Sops](./)
+- [3.1 Fuente: GitRepository](./)
+- [4.1 Secretos: Mozilla Sops](./)
 - [5.1 Image Automation Controller](./)
 - [6.1 Helm Controller: integración con Helm](./)
 - [6.2 Helm Controller: Actualización de imágenes y rollbacks](./)
