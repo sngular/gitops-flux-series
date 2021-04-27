@@ -22,9 +22,9 @@ Se recomienda utilizar el siguiente script para la instalación de la última ve
 sudo curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
 
 [INFO]  Downloading metadata https://api.github.com/repos/fluxcd/flux2/releases/latest
-[INFO]  Using 0.12.3 as release
-[INFO]  Downloading hash https://github.com/fluxcd/flux2/releases/download/v0.12.3/flux_0.12.3_checksums.txt
-[INFO]  Downloading binary https://github.com/fluxcd/flux2/releases/download/v0.12.3/flux_0.12.3_darwin_amd64.tar.gz
+[INFO]  Using 0.13.1 as release
+[INFO]  Downloading hash https://github.com/fluxcd/flux2/releases/download/v0.13.1/flux_0.13.1_checksums.txt
+[INFO]  Downloading binary https://github.com/fluxcd/flux2/releases/download/v0.13.1/flux_0.13.1_darwin_amd64.tar.gz
 [INFO]  Verifying binary download
 [INFO]  Installing flux to /usr/local/bin/flux
 ```
@@ -94,13 +94,14 @@ Consultar la estructura creada
 ```bash
 tree
 .
-├── README.md
-└── flux-system
-    ├── gotk-components.yaml
-    ├── gotk-sync.yaml
-    └── kustomization.yaml
+└── cluster
+    └── namespaces
+        └── flux-system
+            ├── gotk-components.yaml
+            ├── gotk-sync.yaml
+            └── kustomization.yaml
 
-1 directory, 4 files
+3 directories, 3 files
 ```
 
 ## Desplegar el primer pod
@@ -134,7 +135,7 @@ Incluir los manifiestos en el repositorio
 Observar los pods
 
 ```bash
-watch -n1 kubectl get pods --namespace gitops-series
+watch -n1 kubectl get pods --namespace gitops-echobot
 ```
 
 ## (Opcional) Desintalar Flux
