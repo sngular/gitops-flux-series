@@ -5,7 +5,7 @@ metadata:
   namespace: gitops-series
 spec:
   interval: 1m
-  url: git@github.com:sngular/gitops-echobot.git
+  url: https://github.com/sngular/gitops-echobot.git
   ref:
     branch: develop
 
