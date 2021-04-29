@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: echobot
+  namespace: gitops-series
+spec:
+  interval: 1m
+  url: git@github.com:sngular/gitops-echobot.git
+  ref:
+    # Deploy tags with features and patches, but no major releases.
+    semver: ">=0.1.0 <1.0.0"
+

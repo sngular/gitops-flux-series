@@ -1,5 +1,7 @@
 # 3.1 Fuente GitRepository
 
+En esta sección veremos cómo Flux es capaz de desplegar en un cluster recursos alojados en un repositorio git.
+
 ## Requisitos
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19
