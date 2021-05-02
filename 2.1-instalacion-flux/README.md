@@ -1,5 +1,7 @@
 # 2.1 Instalación de Flux
 
+En esta sección serán mostrados los pasos para instalar flux en el cluster de Kubernetes.
+
 ## Requisito
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19

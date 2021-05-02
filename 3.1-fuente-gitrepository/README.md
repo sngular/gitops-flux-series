@@ -1,144 +1,113 @@
 # 3.1 Fuente GitRepository
 
-En esta sección veremos cómo Flux es capaz de desplegar en un cluster recursos alojados en un repositorio git.
+En esta sección veremos cómo Flux es capaz de desplegar en un cluster recursos alojados en múltiples repositorio git.
 
 ## Requisitos
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19
+* Tener instalado Flux >=0.13.2
 
-## Clonar repositorio de contenido
+## Clonar el repositorio con la guía de pasos
 
-```bash
+``bash
 git clone https://github.com/sngular/gitops-flux-series.git
-```
-
-## Instalación del binario flux
-
-Utilice el siguiente enlace para conocer las versiones disponibles: <https://toolkit.fluxcd.io/get-started/#install-the-flux-cli>
-
-Se recomienda utilizar el siguiente script para la instalación de la última versión de Flux.
-
-```bash
-sudo curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
-
-[INFO]  Downloading metadata https://api.github.com/repos/fluxcd/flux2/releases/latest
-[INFO]  Using 0.12.3 as release
-[INFO]  Downloading hash https://github.com/fluxcd/flux2/releases/download/v0.12.3/flux_0.12.3_checksums.txt
-[INFO]  Downloading binary https://github.com/fluxcd/flux2/releases/download/v0.12.3/flux_0.12.3_darwin_amd64.tar.gz
-[INFO]  Verifying binary download
-[INFO]  Installing flux to /usr/local/bin/flux
-```
-
-Comprobar el resultado de la instalación
-
-```bash
-flux --version
-```
-
-## Estructura del comando
-
-```bash
-flux --help | less
-```
-
-## Comprobar que el cluster cumple los requisitos
-
-```bash
-flux check --pre
-```
-
-## Exportar token de GitHub
-
-```bash
-export GITHUB_TOKEN=<your-token>
 ```
 
 ## Instalar Flux en el cluster
 
 ```bash
 flux bootstrap github \
-  --owner=sngular \
-  --repository=gitops-flux-series-demo \
-  --branch=main \
-  --private \
-  --path=./cluster/namespaces
+    --owner=mmorejon \
+    --repository=gitops-demo \
+    --branch=main \
+    --personal \
+    --private \
+    --path=./cluster/namespaces
 ```
 
-Ver los componentes que han sido instalados
+## Clonar repositorio de contenido
 
 ```bash
 {
-  kubectl get namespaces
-  echo
-  kubectl get pods --namespace flux-system
+    git clone git@github.com:mmorejon/gitops-demo.git
+    cd gitops-demo
+    tree
 }
 ```
 
-Ver los CRD creados
+## Comprobar el funcionamiento de flux
 
 ```bash
-kubectl get crd | grep fluxcd
+kubectl --namespace flux-system get pods
 ```
 
-## Clonar repositorio creado
+## Copiar los manifiestos del namespace gitops-series
 
 ```bash
 {
-  git clone git@github.com:sngular/gitops-flux-series-demo.git
-  cd gitops-flux-series-demo
+    cp -r ../gitops-flux-series/3.1-fuente-gitrepository/manifests/gitops-series cluster/namespaces
+    git add .
+    git commit -m 'Add gitops series namespace'
+    git push origin main
 }
 ```
 
-Consultar la estructura creada
-
-```bash
-tree
-.
-├── README.md
-└── flux-system
-    ├── gotk-components.yaml
-    ├── gotk-sync.yaml
-    └── kustomization.yaml
-
-1 directory, 4 files
-```
-
-## Desplegar el primer pod
-
-Copiar manifiestos
+Comprobar que se ha realizado la sincronización con el repositorio del cluster
 
 ```bash
 {
-  cp -r ../gitops-flux-series/2.1-instalacion-flux/manifests/gitops-series cluster/namespaces
-  tree
+    flux get sources git
+    echo
+    kubectl get namespaces
 }
 ```
 
-Mostrar los logs
-
-```bash
-kubectl --namespace flux-system logs --selector app=source-controller --follow
-```
-
-Incluir los manifiestos en el repositorio
+Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación puede utilizar los siguienes comandos.
 
 ```bash
 {
-  git pull origin main
-  git add .
-  git commit -m 'Add gitops manifests'
-  git push origin main
+    flux reconcile source git flux-system
+    echo
+    flux reconcile kustomization flux-system
 }
 ```
 
-Observar los pods
+## Adicionar la fuente de origen de la aplicación
 
 ```bash
-watch -n1 kubectl get pods --namespace gitops-series
+cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-tag.yaml cluster/namespaces/sources/echobot.yaml
 ```
 
-## (Opcional) Desintalar Flux
+Agregar los cambios en el repositorio
 
 ```bash
-flux uninstall
+{
+    git add .
+    git commit -m 'Add echobot sources'
+    git push origin main
+    kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
+}
+```
+
+Consultar los cambios detectados por flux
+
+```bash
+kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
+```
+
+Puede ser que esté sincronizado el contenido del repositorio, pero todavía el controlador Kustomization no ha llegado su ciclo de reconciliación
+
+## Configurar semantic version para GitRepository
+
+```bash
+cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-semver.yaml cluster/namespaces/sources/echobot.yaml
+```
+
+```bash
+{
+    git add .
+    git commit -m 'Setup semver to echobot sources'
+    git push origin main
+    kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
+}
 ```

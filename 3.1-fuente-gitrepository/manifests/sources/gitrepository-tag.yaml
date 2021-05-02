@@ -1,0 +1,32 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: my-echobot
+  namespace: gitops-series
+spec:
+  interval: 1m0s
+  url: ssh://git@github.com/mmorejon/my-echobot.git
+  secretRef:
+    name: ssh-credentials
+  ref:
+    tag: v0.1.1
+  ignore: |
+    # exclude all
+    /*
+    # include deploy dir
+    !/deploy
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: my-echobot
+  namespace: gitops-series
+spec:
+  interval: 10m0s
+  path: ./deploy
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: my-echobot
+  validation: client
