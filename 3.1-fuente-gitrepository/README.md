@@ -5,11 +5,11 @@ En esta sección veremos cómo Flux es capaz de desplegar en un cluster recursos
 ## Requisitos
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19
-* Tener instalado Flux >=0.13.2
+* Tener instalado cliente Flux >=0.13.2
 
 ## Clonar el repositorio con la guía de pasos
 
-``bash
+```bash
 git clone https://github.com/sngular/gitops-flux-series.git
 ```
 
@@ -46,6 +46,7 @@ kubectl --namespace flux-system get pods
 ```bash
 {
     cp -r ../gitops-flux-series/3.1-fuente-gitrepository/manifests/gitops-series cluster/namespaces
+    tree
     git add .
     git commit -m 'Add gitops series namespace'
     git push origin main
@@ -75,7 +76,11 @@ Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación 
 ## Adicionar la fuente de origen de la aplicación
 
 ```bash
-cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-tag.yaml cluster/namespaces/sources/echobot.yaml
+{
+    mkdir cluster/namespaces/sources/
+    cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-tag.yaml cluster/namespaces/sources/echobot.yaml
+    tree
+}
 ```
 
 Agregar los cambios en el repositorio
@@ -100,7 +105,10 @@ Puede ser que esté sincronizado el contenido del repositorio, pero todavía el 
 ## Configurar semantic version para GitRepository
 
 ```bash
-cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-semver.yaml cluster/namespaces/sources/echobot.yaml
+{
+    cp ../gitops-flux-series/3.1-fuente-gitrepository/manifests/sources/gitrepository-semver.yaml cluster/namespaces/sources/echobot.yaml
+    tree
+}
 ```
 
 ```bash

@@ -11,6 +11,11 @@ spec:
     name: ssh-credentials
   ref:
     semver: ">=0.1.0 <1.0.0"
+  ignore: |
+    # exclude all
+    /*
+    # include deploy dir
+    !/deploy
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
