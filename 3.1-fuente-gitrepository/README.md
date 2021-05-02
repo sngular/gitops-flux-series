@@ -99,7 +99,7 @@ Consultar los cambios detectados por flux
 kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
 ```
 
-Puede ser que esté sincronizado el contenido del repositorio, pero todavía el controlador Kustomization no ha llegado su ciclo de reconciliación
+Puede ser que esté sincronizado el contenido del repositorio, pero todavía el controlador Kustomization no ha realizado su ciclo de reconciliación.
 
 ## Configurar semantic version para GitRepository
 
