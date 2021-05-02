@@ -1,6 +1,6 @@
 # 2.1 Instalación de Flux
 
-En esta sección comprobaremos los requisitos para instalar Flux, desplegaremos Flux en el cluster y lanzaremos nuestra primera prueba.
+En esta sección serán mostrados los pasos para instalar flux en el cluster de Kubernetes.
 
 ## Requisito
 
