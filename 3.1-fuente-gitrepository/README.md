@@ -1,6 +1,6 @@
 # 3.1 Fuente GitRepository
 
-En esta sección veremos cómo Flux es capaz de desplegar en un cluster recursos alojados en múltiples repositorio git.
+En esta sección veremos cómo Flux es capaz de desplegar en el cluster recursos alojados en un repositorio git.
 
 ## Requisitos
 
@@ -17,21 +17,20 @@ git clone https://github.com/sngular/gitops-flux-series.git
 
 ```bash
 flux bootstrap github \
-    --owner=mmorejon \
-    --repository=gitops-demo \
-    --branch=main \
-    --personal \
-    --private \
-    --path=./cluster/namespaces
+  --owner=sngular \
+  --repository=gitops-flux-series-demo \
+  --branch=main \
+  --private \
+  --path=./cluster/namespaces
 ```
 
 ## Clonar repositorio de contenido
 
 ```bash
 {
-    git clone git@github.com:mmorejon/gitops-demo.git
-    cd gitops-demo
-    tree
+  git clone git@github.com:sngular/gitops-flux-series-demo.git
+  cd gitops-flux-series-demo
+  tree
 }
 ```
 
@@ -119,3 +118,4 @@ Puede ser que esté sincronizado el contenido del repositorio, pero todavía el 
     kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
 }
 ```
+
