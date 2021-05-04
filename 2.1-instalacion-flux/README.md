@@ -22,9 +22,9 @@ Se recomienda utilizar el siguiente script para la instalación de la última ve
 sudo curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
 
 [INFO]  Downloading metadata https://api.github.com/repos/fluxcd/flux2/releases/latest
-[INFO]  Using 0.13.1 as release
-[INFO]  Downloading hash https://github.com/fluxcd/flux2/releases/download/v0.13.1/flux_0.13.1_checksums.txt
-[INFO]  Downloading binary https://github.com/fluxcd/flux2/releases/download/v0.13.1/flux_0.13.1_darwin_amd64.tar.gz
+[INFO]  Using 0.13.2 as release
+[INFO]  Downloading hash https://github.com/fluxcd/flux2/releases/download/v0.13.2/flux_0.13.2_checksums.txt
+[INFO]  Downloading binary https://github.com/fluxcd/flux2/releases/download/v0.13.2/flux_0.13.2_darwin_amd64.tar.gz
 [INFO]  Verifying binary download
 [INFO]  Installing flux to /usr/local/bin/flux
 ```
@@ -60,7 +60,7 @@ flux bootstrap github \
   --owner=sngular \
   --repository=gitops-flux-series-demo \
   --branch=main \
-  --private \
+  --private=false \
   --path=./cluster/namespaces
 ```
 
@@ -136,6 +136,12 @@ Observar los pods
 
 ```bash
 watch -n1 kubectl get pods --namespace gitops-echobot
+```
+
+Observar los logs del pod
+
+```bash
+kubectl logs -f --namespace gitops-echobot echobot
 ```
 
 ## (Opcional) Desintalar Flux
