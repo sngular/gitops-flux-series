@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: echobot
-  namespace: gitops-echobot
+  namespace: gitops-series
 spec:
   containers:
     - name: message
