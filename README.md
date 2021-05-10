@@ -1,4 +1,4 @@
-# Gitops-Flux Series
+# Gitops Flux Series
 
 A continuación se pueden consultar las guías de las diferentes secciones de la serie:
 
@@ -14,4 +14,4 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [8.1 Monitorización](./)
 
 
-Nota: cada guía corresponde a un vídeo que puedes encontrar en esta [playlist de YouTube](https://youtube.com/)
+Nota: cada guía corresponde a un vídeo que puedes encontrar en esta [playlist de YouTube](https://youtube.com/).
