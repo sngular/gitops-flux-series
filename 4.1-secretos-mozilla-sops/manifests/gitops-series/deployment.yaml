@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echobot
+  namespace: gitops-series
+  labels:
+    app: echobot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echobot
+  template:
+    metadata:
+      labels:
+        app: echobot
+    spec:
+      containers:
+        - name: message
+          image: ghcr.io/sngular/gitops-echobot:v0.1.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 30Mi
+            limits:
+              cpu: 10m
+              memory: 30Mi
