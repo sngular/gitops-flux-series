@@ -207,8 +207,9 @@ kubectl --namespace gitops-series logs \
 ```bash
 export KEY_NAME="demo.gitops-series.io"
 export KEY_COMMENT="flux secrets"
+```
 
-
+```bash
 gpg --batch --full-generate-key <<EOF
 %no-protection
 Key-Type: 1
