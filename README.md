@@ -5,7 +5,7 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [1.0 Descubriendo GitOps](1.0-descubriendo-gitops/README.md)
 - [2.1 Instalación de Flux](2.1-instalacion-flux/README.md)
 - [3.1 Fuente: GitRepository](3.1-fuente-gitrepository/README.md)
-- [4.1 Secretos: Mozilla Sops](#)
+- [4.1 Secretos: Mozilla Sops](4.1-secretos-mozilla-sops/README.md)
 - [5.1 Image Automation Controller](#)
 - [6.1 Helm Controller: integración con Helm](#)
 - [6.2 Helm Controller: Actualización de imágenes y rollbacks](#)
