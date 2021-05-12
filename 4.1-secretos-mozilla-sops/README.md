@@ -69,7 +69,7 @@ kubectl --namespace gitops-series logs \
 ## Generar la llave GPG
 
 ```bash
-export KEY_NAME="cluster0.yourdomain.com"
+export KEY_NAME="demo.gitops-series.io"
 export KEY_COMMENT="flux secrets"
 
 
