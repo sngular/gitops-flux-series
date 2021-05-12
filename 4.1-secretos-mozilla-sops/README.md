@@ -367,7 +367,11 @@ EOF
 Acelerar el ciclo de reconciliación:
 
 ```bash
-flux reconcile kustomization flux-system
+{
+  flux reconcile source git flux-system
+  echo
+  flux reconcile kustomization flux-system
+}
 ```
 
 <details>
@@ -428,7 +432,11 @@ Adicionar el secreto encriptado al repositorio:
 Acelerar el ciclo de reconciliación:
 
 ```bash
-flux reconcile kustomization flux-system
+{
+  flux reconcile source git flux-system
+  echo
+  flux reconcile kustomization flux-system
+}
 ```
 
 <details>
@@ -528,10 +536,14 @@ Establecer los cambios en el repositorio de código:
 }
 ```
 
-Acelerar el ciclo de reconciliación
+Acelerar el ciclo de reconciliación:
 
 ```bash
-flux reconcile kustomization flux-system
+{
+  flux reconcile source git flux-system
+  echo
+  flux reconcile kustomization flux-system
+}
 ```
 
 Mostrar los logs:

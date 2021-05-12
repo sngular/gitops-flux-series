@@ -249,6 +249,8 @@ metadata:
 EOF
 ```
 
+Crear el fichero del pod:
+
 ```bash
 cat <<EOF > ./cluster/namespaces/gitops-series/pod.yaml
 apiVersion: v1
