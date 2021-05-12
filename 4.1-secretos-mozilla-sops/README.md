@@ -30,13 +30,14 @@ flux check --pre
 
 ```bash
 export GITHUB_TOKEN=<your-token>
+export GITHUB_USER=<your-username>
 ```
 
 ## Instalar Flux
 
 ```bash
 flux bootstrap github \
-  --owner=sngular \
+  --owner=$GITHUB_USER \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
@@ -85,7 +86,7 @@ flux bootstrap github \
 
 ```bash
 {
-  git clone git@github.com:sngular/gitops-flux-series-demo.git
+  git clone git@github.com:$GITHUB_USER/gitops-flux-series-demo.git
   cd gitops-flux-series-demo
   tree
 }
