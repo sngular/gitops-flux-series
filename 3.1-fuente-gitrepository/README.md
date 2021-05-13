@@ -180,11 +180,7 @@ Comprobar que se ha realizado la sincronización con el repositorio del cluster
 Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación puede utilizar los siguienes comandos:
 
 ```bash
-{
-    flux reconcile source git flux-system
-    echo
-    flux reconcile kustomization flux-system
-}
+flux reconcile kustomization flux-system --with-source
 ```
 
 <details>
@@ -196,7 +192,6 @@ Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación 
   ◎ waiting for GitRepository reconciliation
   ✔ GitRepository reconciliation completed
   ✔ fetched revision main/dee7b07acf15605ea40f9c3530b0c2d371a791e9
-  
   ► annotating Kustomization flux-system in flux-system namespace
   ✔ Kustomization annotated
   ◎ waiting for Kustomization reconciliation
@@ -255,18 +250,26 @@ Comprobar el árbol de ficheros:
 
 ```bash
 tree
-.
-└── cluster
-    └── namespaces
-        ├── flux-system
-        │   ├── gotk-components.yaml
-        │   ├── gotk-sync.yaml
-        │   └── kustomization.yaml
-        ├── gitops-series
-        │   └── namespace.yaml
-        └── sources
-            └── echobot.yaml
 ```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  .
+  └── cluster
+      └── namespaces
+          ├── flux-system
+          │   ├── gotk-components.yaml
+          │   ├── gotk-sync.yaml
+          │   └── kustomization.yaml
+          ├── gitops-series
+          │   └── namespace.yaml
+          └── sources
+              └── echobot.yaml
+  ```
+
+</details>
 
 Agregar los cambios en el repositorio
 

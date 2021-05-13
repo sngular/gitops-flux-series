@@ -206,8 +206,10 @@ kubectl --namespace gitops-series logs \
 ## Generar la llave GPG
 
 ```bash
-export KEY_NAME="demo.gitops-series.io"
-export KEY_COMMENT="flux secrets"
+{
+  export KEY_NAME="demo.gitops-series.io"
+  export KEY_COMMENT="flux secrets"
+}
 ```
 
 ```bash
@@ -229,15 +231,26 @@ Recuperar la huella digital de la clave GPG:
 
 ```bash
 gpg --list-secret-keys "${KEY_NAME}"
-
-sec   rsa4096 2021-05-11 [SCEA]
-      551A4D3A98D5CABC697373CB42F867BF0DDB91CF
 ```
+<details>
+  <summary>Resultado</summary>
+
+  ```bash
+  gpg: checking the trustdb
+  gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+  gpg: depth: 0  valid:   3  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 3u
+  gpg: next trustdb check due at 2024-06-30
+  sec   rsa4096 2021-05-13 [SCEA]
+        5999BA5E167E0A7E60B4F66D13767E9916D79699
+  uid           [ultimate] demo.gitops-series.io (flux secrets)
+  ssb   rsa4096 2021-05-13 [SEA]
+  ```
+</details>
 
 Almacenar la huella digital de la clave como una variable de entorno:
 
 ```bash
-export KEY_FP=551A4D3A98D5CABC697373CB42F867BF0DDB91CF
+export KEY_FP=5999BA5E167E0A7E60B4F66D13767E9916D79699
 ```
 
 ## Adicionar la llave privada al cluster
@@ -356,6 +369,8 @@ spec:
 EOF
 ```
 
+Adicione los cambios en el control de versiones:
+
 ```bash
 {
   git add .
@@ -367,22 +382,22 @@ EOF
 Acelerar el ciclo de reconciliación:
 
 ```bash
-{
-  flux reconcile source git flux-system
-  echo
-  flux reconcile kustomization flux-system
-}
+flux reconcile kustomization flux-system --with-source
 ```
 
 <details>
   <summary>Resultado</summary>
 
   ```bash
+  ✔ GitRepository annotated
+  ◎ waiting for GitRepository reconciliation
+  ✔ GitRepository reconciliation completed
+  ✔ fetched revision main/3697781dd9efe5f5454c3fc1973ab73f3ec4b9b2
   ► annotating Kustomization flux-system in flux-system namespace
   ✔ Kustomization annotated
   ◎ waiting for Kustomization reconciliation
   ✔ Kustomization reconciliation completed
-  ✔ applied revision main/b61c9899285c161409210a73d051ce5dbc19a476
+  ✔ applied revision main/3697781dd9efe5f5454c3fc1973ab73f3ec4b9b2
   ```
 </details>
 
@@ -432,22 +447,23 @@ Adicionar el secreto encriptado al repositorio:
 Acelerar el ciclo de reconciliación:
 
 ```bash
-{
-  flux reconcile source git flux-system
-  echo
-  flux reconcile kustomization flux-system
-}
+flux reconcile kustomization flux-system --with-source
 ```
 
 <details>
   <summary>Resultado</summary>
 
   ```bash
+  ► annotating GitRepository flux-system in flux-system namespace
+  ✔ GitRepository annotated
+  ◎ waiting for GitRepository reconciliation
+  ✔ GitRepository reconciliation completed
+  ✔ fetched revision main/33c524cb7fb41b3128e26049aa36676cbe05cc79
   ► annotating Kustomization flux-system in flux-system namespace
   ✔ Kustomization annotated
   ◎ waiting for Kustomization reconciliation
   ✔ Kustomization reconciliation completed
-  ✔ applied revision main/3e100670b326e95b629ce11f62100e3ca64a59d5
+  ✔ applied revision main/33c524cb7fb41b3128e26049aa36676cbe05cc79
   ```
 </details>
 
@@ -539,12 +555,25 @@ Establecer los cambios en el repositorio de código:
 Acelerar el ciclo de reconciliación:
 
 ```bash
-{
-  flux reconcile source git flux-system
-  echo
-  flux reconcile kustomization flux-system
-}
+flux reconcile kustomization flux-system --with-source
 ```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```bash
+  ► annotating GitRepository flux-system in flux-system namespace
+  ✔ GitRepository annotated
+  ◎ waiting for GitRepository reconciliation
+  ✔ GitRepository reconciliation completed
+  ✔ fetched revision main/38d460552d277e7aebcb6857039e62a49ad35783
+  ► annotating Kustomization flux-system in flux-system namespace
+  ✔ Kustomization annotated
+  ◎ waiting for Kustomization reconciliation
+  ✔ Kustomization reconciliation completed
+  ✔ applied revision main/38d460552d277e7aebcb6857039e62a49ad35783
+  ```
+</details>
 
 Mostrar los logs:
 
