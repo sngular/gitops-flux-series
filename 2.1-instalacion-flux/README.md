@@ -326,11 +326,7 @@ Incluya los ficheros creados en el control de versiones:
 Acelerar el ciclo de reconciliación:
 
 ```bash
-{
-  flux reconcile source git flux-system
-  echo
-  flux reconcile kustomization flux-system
-}
+flux reconcile kustomization flux-system --with-source
 ```
 
 <details>
@@ -341,12 +337,12 @@ Acelerar el ciclo de reconciliación:
   ✔ GitRepository annotated
   ◎ waiting for GitRepository reconciliation
   ✔ GitRepository reconciliation completed
-  ✔ fetched revision main/33c59431db8b4465cb045743b5725d59150ef9ef
+  ✔ fetched revision main/9f256953f5ca3d0cb9f0281a5abda896885b9af5
   ► annotating Kustomization flux-system in flux-system namespace
   ✔ Kustomization annotated
   ◎ waiting for Kustomization reconciliation
   ✔ Kustomization reconciliation completed
-  ✔ applied revision main/33c59431db8b4465cb045743b5725d59150ef9ef
+  ✔ applied revision main/9f256953f5ca3d0cb9f0281a5abda896885b9af5
   ```
 </details>
 
