@@ -618,7 +618,7 @@ kubectl get imageupdateautomation echobot-autoupdate
 
   ```
   NAME                    READY   MESSAGE         LAST RUN                        SUSPENDED
-  echobot-autoupdate      True    no updates made 2021-05-13T21:03:18+02:00       False
+  echobot-autoupdate      True    image updated 2021-05-13T21:03:18+02:00       False
   ```
 </details>
 
