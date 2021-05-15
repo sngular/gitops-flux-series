@@ -250,8 +250,11 @@ gpg --list-secret-keys "${KEY_NAME}"
 Almacenar la huella digital de la clave como una variable de entorno:
 
 ```bash
-export KEY_FP=5999BA5E167E0A7E60B4F66D13767E9916D79699
+# Listar clave con detalles, filtrar la huella digital y exportar la variablede entorno.
+export KEY_FP=$(gpg --list-secret-keys "${KEY_NAME}" | grep --extended-regexp --only-matching '^\s.*$' | tr --delete ' ')
 ```
+
+Nota: En el ejemplo la huella digital es `5999BA5E167E0A7E60B4F66D13767E9916D79699`.
 
 ## Adicionar la llave privada al cluster
 
@@ -368,6 +371,25 @@ spec:
       name: sops-gpg
 EOF
 ```
+
+<details>
+  <summary>Git diff</summary>
+
+  ```
+  diff --git a/cluster/namespaces/flux-system/gotk-sync.yaml b/cluster/namespaces/flux-system/gotk-sync.yaml
+  index 356002c..e798dce 100644
+  --- a/cluster/namespaces/flux-system/gotk-sync.yaml
+  +++ b/cluster/namespaces/flux-system/gotk-sync.yaml
+  @@ -25,3 +25,7 @@ spec:
+       kind: GitRepository
+       name: flux-system
+     validation: client
+  +  decryption:                 # configuración sops
+  +    provider: sops
+  +    secretRef:
+  +      name: sops-gpg
+  ```
+</details>
 
 Adicione los cambios en el control de versiones:
 
@@ -541,6 +563,30 @@ spec:
               memory: 30Mi
 EOF
 ```
+
+<details>
+  <summary>Git diff</summary>
+
+  ```
+  diff --git a/cluster/namespaces/gitops-series/deployment.yaml b/cluster/namespaces/gitops-series/deployment.yaml
+  index ef47ef9..6c25fb4 100644
+  --- a/cluster/namespaces/gitops-series/deployment.yaml
+  +++ b/cluster/namespaces/gitops-series/deployment.yaml
+  @@ -19,6 +19,12 @@ spec:
+           - name: message
+             image: ghcr.io/sngular/gitops-echobot:v0.1.0
+             imagePullPolicy: IfNotPresent
+  +          env:
+  +            - name: CHARACTER
+  +              valueFrom:
+  +                secretKeyRef:
+  +                  name: secret-text   # se utiliza el secret creado
+  +                  key: hidden-text
+             resources:
+               requests:
+                 cpu: 10m
+  ```
+</details>
 
 Establecer los cambios en el repositorio de código:
 
