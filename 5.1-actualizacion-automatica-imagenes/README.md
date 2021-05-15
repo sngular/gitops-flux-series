@@ -1,4 +1,4 @@
-# 5.1 Image Automation Controller
+# 5.1 Actualización automática de imágenes
 
 En esta sección exploramos los pasos necesarios para configurar Flux y aplicar entrega continua (Continuous Delivery) a nuestros servicios de Kubernetes.
 
