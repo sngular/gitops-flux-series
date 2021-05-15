@@ -10,7 +10,7 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [6.1 Helm Controller: integración con Helm](#)
 - [6.2 Helm Controller: Actualización de imágenes y rollbacks](#)
 - [6.3 Helm Controller: Testing](./)
-- [7.1 Notification Controller](#)
+- [7.1 Notificiones](7.1-notificaciones/README.md)
 - [8.1 Monitorización](#)
 
 
