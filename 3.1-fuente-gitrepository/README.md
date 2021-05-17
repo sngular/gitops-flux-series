@@ -30,7 +30,7 @@ flux bootstrap github \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
-  --path=./cluster/namespaces
+  --path=./clusters/demo
 ```
 
 <details>
@@ -51,7 +51,7 @@ flux bootstrap github \
   ► determining if source secret "flux-system/flux-system" exists
   ► generating source secret
   ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcW5fJvdPje3qMRDoW59hRD/gGIBnPUcEz2fKLJkRAo0tE+q8Suq20Lhmnqb5CB7EvXB1Nl56k62j/K6cMBXW6ERbZy4c47CkeMyee14G8ZdVJbOS3x0pvyl4swp2AFzL6SECPqbrVQZgSQmdbtUaRseS0hC50gOWEypCHY4bo3PQPcXbNhdN/G3oMNn3707+E7A58wsRL2pRsmevjRXIL66108FMT9lPjE0vi7l5JZ32MvuFWwP5rZM39qtLSeXheFa2jpcCBPEczxbdoqijhSzV0PNZqcb8Vbr974WVvaHitAdkhm4/aHJCRhiZuzzpbavoaKNHoNe24oQcIPnuJ
-  ✔ configured deploy key "flux-system-main-flux-system-./cluster/namespaces" for "https://github.com/sngular/gitops-flux-series-demo"
+  ✔ configured deploy key "flux-system-main-flux-system-./clusters/demo" for "https://github.com/sngular/gitops-flux-series-demo"
   ► applying source secret "flux-system/flux-system"
   ✔ reconciled source secret
   ► generating sync manifests
@@ -92,8 +92,8 @@ flux bootstrap github \
   remote: Total 13 (delta 0), reused 13 (delta 0), pack-reused 0
   Receiving objects: 100% (13/13), 17.43 KiB | 17.43 MiB/s, done.
   .
-  └── cluster
-      └── namespaces
+  └── clusters
+      └── demo
           └── flux-system
               ├── gotk-components.yaml
               ├── gotk-sync.yaml
@@ -125,13 +125,13 @@ kubectl --namespace flux-system get pods
 
 Crear carpeta gitops-series:
 ```bash
-mkdir -p ./cluster/namespaces/gitops-series
+mkdir -p ./clusters/demo/gitops-series
 ```
 
 Crear el fichero del namespace:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/namespace.yaml
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -206,13 +206,13 @@ flux reconcile kustomization flux-system --with-source
 
 Crear carpeta gitops-series:
 ```bash
-mkdir ./cluster/namespaces/sources/
+mkdir ./clusters/demo/sources/
 ```
 
 Crear el fichero del namespace:
 
 ```bash
-cat <<EOF > cluster/namespaces/sources/echobot.yaml
+cat <<EOF > clusters/demo/sources/echobot.yaml
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
@@ -257,8 +257,8 @@ tree
 
   ```
   .
-  └── cluster
-      └── namespaces
+  └── clusters
+      └── demo
           ├── flux-system
           │   ├── gotk-components.yaml
           │   ├── gotk-sync.yaml
@@ -303,7 +303,7 @@ Puede ser que esté sincronizado el contenido del repositorio, pero todavía el 
 ## Configurar semantic version para GitRepository
 
 ```bash
-cat <<EOF > ./cluster/namespaces/sources/echobot.yaml
+cat <<EOF > ./clusters/demo/sources/echobot.yaml
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
@@ -347,17 +347,19 @@ git diff
   <summary>Resultado</summary>
 
   ```bash
-  diff --git a/cluster/namespaces/sources/echobot.yaml b/cluster/namespaces/sources/echobot.yaml
-  index 49fb911..464ec5a 100644
-  --- a/cluster/namespaces/sources/echobot.yaml
-  +++ b/cluster/namespaces/sources/echobot.yaml
-  @@ -10,7 +10,7 @@ spec:
-     ref:
+  diff --git a/clusters/demo/sources/echobot.yaml b/clusters/demo/sources/echobot.yaml
+  index b36d851..2e779dc 100644
+  --- a/clusters/demo/sources/echobot.yaml
+  +++ b/clusters/demo/sources/echobot.yaml
+  @@ -8,7 +8,7 @@ spec:
+    interval: 1m0s
+    url: https://github.com/sngular/gitops-echobot.git
+    ref:
   -    tag: v0.1.1
   +    semver: ">=0.1.0 <1.0.0"
-     ignore: |
-       # exclude all
-       /*
+    ignore: |
+      # exclude all
+      /*
   ```
 </details>
 

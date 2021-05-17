@@ -41,7 +41,7 @@ flux bootstrap github \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
-  --path=./cluster/namespaces
+  --path=./clusters/demo
 ```
 
 <details>
@@ -62,7 +62,7 @@ flux bootstrap github \
   ► determining if source secret "flux-system/flux-system" exists
   ► generating source secret
   ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDIRvouN6owHS6z7/gYimHX0ZsFBMzmFVs0OLMD9XZwilETOaCPxAbNcvuMlvJpqNiRDjZ+zeI/iakCpNg88QNI69PAJ/zU2SnAa6cR9uisI3jU9VqSCBY78hN4uprMhwSwANcFq/lPg3umYqtlKOXuOBbMBZab8GVQgwl93Tg4h8/Xe3OnxFOP2YqFgNA4vWgJC9F9cWL7K+6ZW0dZcixNZo0Wep36DNRJczYctsjjU+/UBd4OTWAG++KXZwLNj/Bvcl37+7yhbGQZ6gVYFZWzGibzNUznIbak9FslvjQOijs7IGTnNmwrSo7RheQvMieJTHT8TC8J2NuozK7VTV+3
-  ✔ configured deploy key "flux-system-main-flux-system-./cluster/namespaces" for "https://github.com/sngular/gitops-flux-series-demo"
+  ✔ configured deploy key "flux-system-main-flux-system-./clusters/demo" for "https://github.com/sngular/gitops-flux-series-demo"
   ► applying source secret "flux-system/flux-system"
   ✔ reconciled source secret
   ► generating sync manifests
@@ -103,8 +103,8 @@ flux bootstrap github \
   remote: Total 13 (delta 0), reused 13 (delta 0), pack-reused 0
   Receiving objects: 100% (13/13), 17.43 KiB | 3.49 MiB/s, done.
   .
-  └── cluster
-      └── namespaces
+  └── clusters
+      └── demo
           └── flux-system
               ├── gotk-components.yaml
               ├── gotk-sync.yaml
@@ -118,13 +118,13 @@ flux bootstrap github \
 
 Crear carpeta gitops-series:
 ```bash
-mkdir -p ./cluster/namespaces/gitops-series
+mkdir -p ./clusters/demo/gitops-series
 ```
 
 Crear el fichero del namespace:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/namespace.yaml
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -135,7 +135,7 @@ EOF
 Crear el fichero del deployment:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -288,7 +288,7 @@ Exportar a un fichero la llave pública y adicionarla al repositorio de código:
 
 ```bash
 {
-  gpg --export --armor "${KEY_FP}" > ./cluster/.sops.pub.asc
+  gpg --export --armor "${KEY_FP}" > ./clusters/demo/.sops.pub.asc
   git add .
   git commit -m 'Add sops public key'
   git push origin main
@@ -337,7 +337,7 @@ gpg --list-public-keys  "${KEY_NAME}"
 Actualice el objeto Kustomization `flux-system`:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/flux-system/gotk-sync.yaml
+cat <<EOF > ./clusters/demo/flux-system/gotk-sync.yaml
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
@@ -359,7 +359,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./cluster/namespaces
+  path: ./clusters/demo
   prune: true
   sourceRef:
     kind: GitRepository
@@ -376,10 +376,10 @@ EOF
   <summary>Git diff</summary>
 
   ```
-  diff --git a/cluster/namespaces/flux-system/gotk-sync.yaml b/cluster/namespaces/flux-system/gotk-sync.yaml
+  diff --git a/clusters/demo/flux-system/gotk-sync.yaml b/clusters/demo/flux-system/gotk-sync.yaml
   index 356002c..e798dce 100644
-  --- a/cluster/namespaces/flux-system/gotk-sync.yaml
-  +++ b/cluster/namespaces/flux-system/gotk-sync.yaml
+  --- a/clusters/demo/flux-system/gotk-sync.yaml
+  +++ b/clusters/demo/flux-system/gotk-sync.yaml
   @@ -25,3 +25,7 @@ spec:
        kind: GitRepository
        name: flux-system
@@ -428,7 +428,7 @@ flux reconcile kustomization flux-system --with-source
 El fichero `.sops.yaml` permite definir la forma de encriptar la información.
 
 ```bash
-cat <<EOF > ./cluster/.sops.yaml
+cat <<EOF > ./clusters/demo/.sops.yaml
 creation_rules:
   - path_regex: .*.yaml
     encrypted_regex: ^(data|stringData)$
@@ -445,15 +445,15 @@ kubectl create secret generic secret-text \
   --namespace gitops-series \
   --from-literal=hidden-text="mensaje confidencial" \
   --dry-run=client \
-  -o yaml > cluster/namespaces/gitops-series/secret-text.yaml
+  -o yaml > clusters/demo/gitops-series/secret-text.yaml
 ```
 
 Encriptar el secreto con sops:
 
 ```bash
-sops --config cluster/.sops.yaml \
+sops --config clusters/demo/.sops.yaml \
   --encrypt \
-  --in-place cluster/namespaces/gitops-series/secret-text.yaml
+  --in-place clusters/demo/gitops-series/secret-text.yaml
 ```
 
 Adicionar el secreto encriptado al repositorio:
@@ -526,7 +526,7 @@ kubectl get secrets secret-text \
 Actualizar el fichero `deployment.yaml`:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -568,10 +568,10 @@ EOF
   <summary>Git diff</summary>
 
   ```
-  diff --git a/cluster/namespaces/gitops-series/deployment.yaml b/cluster/namespaces/gitops-series/deployment.yaml
+  diff --git a/clusters/demo/gitops-series/deployment.yaml b/clusters/demo/gitops-series/deployment.yaml
   index ef47ef9..6c25fb4 100644
-  --- a/cluster/namespaces/gitops-series/deployment.yaml
-  +++ b/cluster/namespaces/gitops-series/deployment.yaml
+  --- a/clusters/demo/gitops-series/deployment.yaml
+  +++ b/clusters/demo/gitops-series/deployment.yaml
   @@ -19,6 +19,12 @@ spec:
            - name: message
              image: ghcr.io/sngular/gitops-echobot:v0.1.0

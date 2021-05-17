@@ -28,7 +28,7 @@ flux bootstrap github \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
-  --path=./cluster/namespaces \
+  --path=./clusters/demo \
   --components-extra=image-reflector-controller,image-automation-controller
 ```
 <details>
@@ -50,7 +50,7 @@ flux bootstrap github \
   ► determining if source secret "flux-system/flux-system" exists
   ► generating source secret
   ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSTrIKbYAWLUjcG7ec6lWJ2KACfF5YB5KqpQcN+LmxkSYmJbFPBmlzZdtIUEvZcAORJYeMKvk+iAcZC6rPn0OCBKp3ypOiMC5HnF5Lnn4XPt1+Nwx30mC72RzkheFm+K3Q0kTySAi8QdKy94aWqBVpTdZzkJ0woNHJg/aL3gQnofXueiczwkMvB2B6x4vgdbBgLOrRl7YhtGz0B6e9a7U4EEBoPdzjti/w7OAQnOpCZ80TwYcuFCioPE0q2i3BgKLvt0x9rBikzuOSgqKFfoAy3zPETgWZ0kPSbHby3lv+NfwWaLVULVpkpNQTwxBbMJVDcwKuyTUacSGeZcUzS2mB
-  ✔ configured deploy key "flux-system-main-flux-system-./cluster/namespaces" for "https://github.com/sngular/gitops-flux-series-demo"
+  ✔ configured deploy key "flux-system-main-flux-system-./clusters/demo" for "https://github.com/sngular/gitops-flux-series-demo"
   ► applying source secret "flux-system/flux-system"
   ✔ reconciled source secret
   ► generating sync manifests
@@ -109,13 +109,13 @@ Vamos a desplegar el servicio `echobot` en una versión menos actual de la que e
 
 Crear carpeta gitops-series:
 ```bash
-mkdir -p ./cluster/namespaces/gitops-series
+mkdir -p ./clusters/demo/gitops-series
 ```
 
 Crear el manifiesto del namespace `gitops-series`:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/namespace.yaml
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -126,7 +126,7 @@ EOF
 Crear el manifiesto del servicio de prueba:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/echobot-deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -212,7 +212,7 @@ El primer paso para configurar la actualización automática de la imagen es ind
 Para indicarle a Flux cual es el repositorio es necesario crear el recurso `ImageRepository`:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/imagerepository.yaml
+cat <<EOF > ./clusters/demo/gitops-series/imagerepository.yaml
 apiVersion: image.toolkit.fluxcd.io/v1alpha2
 kind: ImageRepository
 metadata:
@@ -276,7 +276,7 @@ Ahora se va a desplegar el recurso `ImagePolicy` que nos ayudará a filtrar las 
 Crear el fichero que contiene el recurso  `ImagePolicy` y subir los cambios a nuestro repositorio:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/imagepolicy.yaml
+cat <<EOF > ./clusters/demo/gitops-series/imagepolicy.yaml
 apiVersion: image.toolkit.fluxcd.io/v1alpha2
 kind: ImagePolicy
 metadata:
@@ -360,7 +360,7 @@ kubectl get secret --namespace flux-system flux-system -o yaml | sed -e 's/name:
 
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/gitrepository.yaml
+cat <<EOF > ./clusters/demo/gitops-series/gitrepository.yaml
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
@@ -450,7 +450,7 @@ image:
 Modifica el manifiesto de despliegue del `echobot` y súbelo al repositorio:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/echobot-deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -527,7 +527,7 @@ Subir los cambios al repositorio:
 ##### 3. Crear `ImageUpdateAutomation`
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/imageupdateautomation.yaml
+cat <<EOF > ./clusters/demo/gitops-series/imageupdateautomation.yaml
 apiVersion: image.toolkit.fluxcd.io/v1alpha2
 kind: ImageUpdateAutomation
 metadata:
@@ -540,7 +540,7 @@ spec:
   interval: 1m
   update:
     strategy: Setters
-    path: "./cluster/namespaces"
+    path: "./clusters/demo"
   git:
     checkout:
       ref:
