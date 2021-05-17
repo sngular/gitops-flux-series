@@ -57,8 +57,8 @@ flux --help | less
   ```bash
   Command line utility for assembling Kubernetes CD pipelines the GitOps way.
 
-Usage:
-  flux [command]
+  Usage:
+    flux [command]
 
   Examples:
     # Check prerequisites
@@ -72,9 +72,9 @@ Usage:
       --url=https://github.com/stefanprodan/podinfo \
       --branch=master \
       --interval=3m
-  ...
-  ...
-  ...
+    ...
+    ...
+    ...
   ```
 </details>
 
@@ -114,7 +114,7 @@ flux bootstrap github \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
-  --path=./cluster/namespaces
+  --path=./clusters/demo
 ```
 
 <details>
@@ -135,7 +135,7 @@ flux bootstrap github \
   ► determining if source secret "flux-system/flux-system" exists
   ► generating source secret
   ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDM10X/KGqYSWFrviPF6ZMRBtT+PV8ypKd8wUPoAccZdPnWlh8G+oc2gwH0jKpYiyKRFuE34RRohW1hgLRjrSiRq1Sd/TpLYSnav61b21Eyz7hBnfIdVn5yI7SKUa+5qDrkGZvn+I8Lwwwm3SagloMIS3dzgH8OsWDNaausSBJupYvwCNA4HbNgm1/wsCfS4EiBagxWmqJZYKQ2L91VInSEiMlcTPILufqjsitJmnLjt4aZ4nIxuHGjeg/8lOxO6dhjj03Cko6JKNXqVLz5gwidhthjJ2LTG2dSTIaxLNfwNWsepH8pI28RxwVrwIYQ1umGkKJcv7u8Uz938gdnaCOV
-  ✔ configured deploy key "flux-system-main-flux-system-./cluster/namespaces" for "https://github.com/sngular/gitops-flux-series-demo"
+  ✔ configured deploy key "flux-system-main-flux-system-./clusters/demo" for "https://github.com/sngular/gitops-flux-series-demo"
   ► applying source secret "flux-system/flux-system"
   ✔ reconciled source secret
   ► generating sync manifests
@@ -221,8 +221,8 @@ Consultar la estructura creada
 ```bash
 tree
 .
-└── cluster
-    └── namespaces
+└── clusters
+    └── demo
         └── flux-system
             ├── gotk-components.yaml
             ├── gotk-sync.yaml
@@ -235,13 +235,13 @@ tree
 
 Crear carpeta gitops-series:
 ```bash
-mkdir -p ./cluster/namespaces/gitops-series
+mkdir -p ./clusters/demo/gitops-series
 ```
 
 Crear el fichero del namespace:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/namespace.yaml
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -252,7 +252,7 @@ EOF
 Crear el fichero del pod:
 
 ```bash
-cat <<EOF > ./cluster/namespaces/gitops-series/pod.yaml
+cat <<EOF > ./clusters/demo/gitops-series/pod.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -282,8 +282,8 @@ Compruebe la nueva estructura del repositorio:
 ```bash
 tree
 .
-└── cluster
-    └── namespaces
+└── clusters
+    └── demo
         ├── flux-system
         │   ├── gotk-components.yaml
         │   ├── gotk-sync.yaml
