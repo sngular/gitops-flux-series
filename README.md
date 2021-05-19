@@ -14,4 +14,4 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [8.1 Monitorización](#)
 
 
-Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](hhttps://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
+Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](https://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
