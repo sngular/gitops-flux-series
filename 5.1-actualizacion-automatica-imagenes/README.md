@@ -2,9 +2,7 @@
 
 En esta sección serán mostrados los pasos necesarios para configurar Flux y aplicar entrega continua (Continuous Delivery) a nuestros servicios de Kubernetes.
 
-Video de la explicación y la demo completa en este [enlace](https://youtube.com/sngular/playlist).
-
-Y si le interesa puede ver más contenido de la serie en la [playlist de Youtube](https://youtube.com/sngular/playlist).
+Vídeo de la explicación y la demo completa en este [enlace](https://www.youtube.com/watch?v=wQZ01-3vXBI&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=5).
 
 ## Requisitos
 
@@ -29,7 +27,7 @@ flux bootstrap github \
   --branch=main \
   --private=false \
   --read-write-key \
-  --path=./cluster \
+  --path=./clusters/demo \
   --components-extra=image-reflector-controller,image-automation-controller
 ```
 <details>
@@ -110,13 +108,13 @@ Será desplegado el servicio `echobot` en una versión menos actual a la que exi
 Crear carpeta gitops-series:
 
 ```bash
-mkdir -p ./cluster/gitops-series
+mkdir -p ./clusters/demo/gitops-series
 ```
 
 Crear el manifiesto del namespace `gitops-series`:
 
 ```bash
-cat <<EOF > ./cluster/gitops-series/namespace.yaml
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -127,7 +125,7 @@ EOF
 Crear el manifiesto del servicio de echobot:
 
 ```bash
-cat <<EOF > ./cluster/gitops-series/echobot-deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -235,15 +233,15 @@ El primer paso para configurar la actualización automática de la imagen es ind
 Para indicarle a Flux cuál es el registro de contenedores será necesario crear el objeto `ImageRepository`:
 
 ```bash
-mkdir -p cluster/automation
+mkdir -p clusters/demo/automation
 ```
 
 ```bash
 flux create image repository echobot \
---image=ghcr.io/sngular/gitops-echobot \
---interval=1m \
---namespace=flux-system \
---export > cluster/automation/echobot-registry.yaml
+  --image=ghcr.io/sngular/gitops-echobot \
+  --interval=1m \
+  --namespace=flux-system \
+  --export > clusters/demo/automation/echobot-registry.yaml
 ```
 
 <details>
@@ -319,10 +317,10 @@ Crear el fichero que contiene el recurso `ImagePolicy` y subir los cambios al re
 
 ```bash
 flux create image policy echobot \
---namespace=flux-system \
---image-ref=echobot \
---select-semver='>=0.1.0 <1.0.0' \
---export > cluster/automation/echobot-policy.yaml
+  --namespace=flux-system \
+  --image-ref=echobot \
+  --select-semver='>=0.1.0 <1.0.0' \
+  --export > clusters/demo/automation/echobot-policy.yaml
 ```
 
 <details>
@@ -423,7 +421,7 @@ image:
 Modifique el manifiesto de despliegue `echobot` y adiciónelo al repositorio:
 
 ```bash
-cat <<EOF > ./cluster/gitops-series/echobot-deployment.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -471,10 +469,10 @@ git diff
   <summary>Resultado</summary>
 
   ```
-  diff --git a/cluster/gitops-series/echobot-deployment.yaml b/cluster/gitops-series/echobot-deployment.yaml
+  diff --git a/clusters/demo/gitops-series/echobot-deployment.yaml b/clusters/demo/gitops-series/echobot-deployment.yaml
   index 92dd1d6..f565077 100644
-  --- a/cluster/gitops-series/echobot-deployment.yaml
-  +++ b/cluster/gitops-series/echobot-deployment.yaml
+  --- a/clusters/demo/gitops-series/echobot-deployment.yaml
+  +++ b/clusters/demo/gitops-series/echobot-deployment.yaml
   @@ -19,7 +19,7 @@ spec:
       spec:
         containers:
@@ -501,14 +499,32 @@ Incluir los cambios en el repositorio:
 
 ```bash
 flux create image update echobot \
---namespace=flux-system \
---git-repo-ref=flux-system \
---checkout-branch=main \
---push-branch=main \
---author-name=fluxbot \
---author-email=fluxbot@gitops-series.com \
---commit-template="{{range .Updated.Images}}{{println .}}{{end}}" \
---export > cluster/automation/echobot-automation.yaml
+  --namespace=flux-system \
+  --git-repo-ref=flux-system \
+  --checkout-branch=main \
+  --push-branch=main \
+  --author-name=fluxbot \
+  --author-email=fluxbot@gitops-series.com \
+  --commit-template="{{ range .Updated.Images -}}
+[demo] Automated image update **{{ \$.AutomationObject }}** to **{{ .Identifier }}**
+{{ end -}}
+Automation name: {{ .AutomationObject }}
+
+Files:
+{{ range \$filename, \$_ := .Updated.Files -}}
+- {{ \$filename }}
+{{ end -}}
+
+Objects:
+{{ range \$resource, \$_ := .Updated.Objects -}}
+- {{ \$resource.Kind }} {{ \$resource.Name }}
+{{ end -}}
+
+Images:
+{{ range .Updated.Images -}}
+- {{.}}
+{{ end -}}" \
+  --export > clusters/demo/automation/echobot-automation.yaml
 ```
 
 <details>
