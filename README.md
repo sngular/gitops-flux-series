@@ -7,11 +7,11 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [3.1 Fuente: GitRepository](3.1-fuente-gitrepository/README.md)
 - [4.1 Secretos: Mozilla Sops](4.1-secretos-mozilla-sops/README.md)
 - [5.1 Actualización automática de imágenes](5.1-actualizacion-automatica-imagenes/README.md)
-- [6.1 Helm Controller: Integración con Helm](#)
-- [6.2 Helm Controller: Actualización de imágenes y rollbacks](#)
-- [6.3 Helm Controller: Testing](./)
-- [7.1 Notification Controller](#)
-- [8.1 Monitorización](#)
+- 6.1 Helm Controller: Integración con Helm
+- 6.2 Helm Controller: Actualización de imágenes y rollbacks
+- 6.3 Helm Controller: Testing
+- 7.1 Notification Controller
+- 8.1 Monitorización
 
 
 Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](https://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
