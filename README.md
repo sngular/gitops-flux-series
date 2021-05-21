@@ -23,10 +23,10 @@ Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de 
 
 - Kubernetes en Cloud:
   - Google Cloud GKE: https://cloud.google.com/kubernetes-engine/
-  - Amazon EKS: https://azure.microsoft.com/es-es/free/
-  - Azure cuenta gratuita: https://www.civo.com/
+  - Amazon EKS: https://aws.amazon.com/eks/
+  - Azure cuenta gratuita: https://azure.microsoft.com/es-es/services/kubernetes-service/
   - Civo: https://www.civo.com/
-  - Digital Ocean: https://aws.amazon.com/eks/
+  - Digital Ocean: https://www.digitalocean.com/products/kubernetes/
 
 - Kubernetes en local:
   - K3S: https://k3s.io/
@@ -37,5 +37,5 @@ Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de 
 
 ## Referencias
 
-- Documentación oficial de Flux: https://toolkit.fluxcd.io/
+- Documentación oficial de Flux: https://fluxcd.io/docs/
 
