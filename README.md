@@ -34,6 +34,90 @@ Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de 
   - Minikube: https://minikube.sigs.k8s.io/docs/
   - Kind: https://kind.sigs.k8s.io/
 
+## Crear cluster de Kubernetes con K3D
+
+Instalar el binario k3d
+
+```bash
+wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  Preparing to install k3d into /usr/local/bin
+  k3d installed into /usr/local/bin/k3d
+  Run 'k3d --help' to see what you can do with it.
+  ```
+</details>
+
+Iniciar cluster
+
+```bash
+k3d cluster create demo
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  INFO[0000] Prep: Network
+  INFO[0000] Re-using existing network 'k3d-demo' (f24fb13aa1a6e642f1f8e1730fcb900c8295e6e39137b8dee216137872d89d76)
+  INFO[0000] Created volume 'k3d-demo-images'
+  INFO[0001] Creating node 'k3d-demo-server-0'
+  INFO[0001] Creating LoadBalancer 'k3d-demo-serverlb'
+  INFO[0001] Starting cluster 'demo'
+  INFO[0001] Starting servers...
+  INFO[0001] Starting Node 'k3d-demo-server-0'
+  INFO[0009] Starting agents...
+  INFO[0009] Starting helpers...
+  INFO[0009] Starting Node 'k3d-demo-serverlb'
+  INFO[0012] (Optional) Trying to get IP of the docker host and inject it into the cluster as 'host.k3d.internal' for easy access
+  INFO[0017] Successfully added host record to /etc/hosts in 2/2 nodes and to the CoreDNS ConfigMap
+  INFO[0017] Cluster 'demo' created successfully!
+  INFO[0017] --kubeconfig-update-default=false --> sets --kubeconfig-switch-context=false
+  INFO[0017] You can now use it like this:
+  kubectl config use-context k3d-demo
+  kubectl cluster-info
+  ```
+</details>
+
+Listar nodos
+
+```bash
+kubectl get nodes
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAME                STATUS   ROLES                  AGE     VERSION
+  k3d-demo-server-0   Ready    control-plane,master   4m31s   v1.21.0+k3s1
+  ```
+</details>
+
+Listar pods
+
+```bash
+kubectl get pods --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+  kube-system   helm-install-traefik-crd-5n55c            0/1     Completed   0          5m52s
+  kube-system   metrics-server-86cbb8457f-bp88w           1/1     Running     0          5m52s
+  kube-system   coredns-7448499f4d-sj9dt                  1/1     Running     0          5m52s
+  kube-system   local-path-provisioner-5ff76fc89d-ndlwm   1/1     Running     0          5m52s
+  kube-system   helm-install-traefik-rgc9f                0/1     Completed   0          5m52s
+  kube-system   svclb-traefik-bhqvb                       2/2     Running     0          2m
+  kube-system   traefik-97b44b794-5gf89                   1/1     Running     0          119s
+  ```
+</details>
 
 ## Referencias
 
