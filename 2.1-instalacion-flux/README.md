@@ -295,6 +295,16 @@ tree
 4 directories, 5 files
 ```
 
+Incluya los ficheros creados en el control de versiones:
+
+```bash
+{
+  git add .
+  git commit -m 'Add gitops series namespace and pod'
+  git push origin main
+}
+```
+
 Mostrar los logs del pod desplegado:
 
 ```bash
@@ -312,16 +322,6 @@ kubectl logs \
   {"level":"info","ts":"2021-05-12T23:00:01.392Z","logger":"controller.gitrepository","msg":"Reconciliation finished in 1.281116458s, next run in 1m0s","reconciler group":"source.toolkit.fluxcd.io","reconciler kind":"GitRepository","name":"flux-system","namespace":"flux-system"}
   ```
 </details>
-
-Incluya los ficheros creados en el control de versiones:
-
-```bash
-{
-  git add .
-  git commit -m 'Add gitops series namespace and pod'
-  git push origin main
-}
-```
 
 Acelerar el ciclo de reconciliación:
 
