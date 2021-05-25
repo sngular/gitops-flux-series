@@ -2,6 +2,8 @@
 
 En esta sección serán mostrados los pasos para instalar flux en el cluster de Kubernetes.
 
+Vídeo de la explicación y la demo completa en este [enlace](https://www.youtube.com/watch?v=5pyAfIEnyrU&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=2).
+
 ## Requisito
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19
