@@ -184,7 +184,11 @@ Configurar el API key, la clave se encuentra en la sección [security](https://w
 Crear el cluster eligiendo el nombre, la región y el tamaño
 
 ```bash
-civo kubernetes create demo-flux --size "g3.k3s.large" --save --switch --wait --region "LON1" --yes
+civo kubernetes create demo-flux \
+  --size "g3.k3s.large" \
+  --region "LON1" \
+  --save --merge --switch --wait \
+  --yes
 ```
 
 <details>
