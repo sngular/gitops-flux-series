@@ -13,7 +13,6 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - 7.1 Notification Controller
 - 8.1 Monitorización
 
-
 Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](https://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
 
 ## Requisitos
@@ -33,6 +32,11 @@ Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de 
   - K3D: https://k3d.io/
   - Minikube: https://minikube.sigs.k8s.io/docs/
   - Kind: https://kind.sigs.k8s.io/
+
+Guías de aprovisionamiento de un cluster de Kubernetes:
+
+- [Crear cluster de Kubernetes en CIVO](#crear-cluster-de-kubernetes-en-civo)
+- [Crear cluster de Kubernetes con K3D](#crear-cluster-de-kubernetes-con-k3d)
 
 ## Crear cluster de Kubernetes con K3D
 
@@ -98,7 +102,7 @@ kubectl get nodes
   ```
 </details>
 
-Listar pods
+Listar pods:
 
 ```bash
 kubectl get pods --all-namespaces
@@ -116,6 +120,121 @@ kubectl get pods --all-namespaces
   kube-system   helm-install-traefik-rgc9f                0/1     Completed   0          5m52s
   kube-system   svclb-traefik-bhqvb                       2/2     Running     0          2m
   kube-system   traefik-97b44b794-5gf89                   1/1     Running     0          119s
+  ```
+</details>
+
+## Crear cluster de Kubernetes en CIVO
+
+Registrarse en [Civo](https://www.civo.com/)
+
+Instalar el binario de civo:
+
+```bash
+{
+  curl -sL https://civo.com/get | sh
+  sudo mv /tmp/civo /usr/local/bin/civo
+}
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  /usr/bin/curl
+  Finding latest version from GitHub
+  0.7.22
+  Downloading package https://github.com/civo/cli/releases/download/v0.7.22/civo-0.7.22-linux-amd64.tar.gz to /tmp/civo-0.7.22-linux-amd64.tar.gz
+  Download complete.
+
+  ============================================================
+    The script was run as a user who is unable to write
+    to /usr/local/bin. To complete the installation the
+    following commands may need to be run manually.
+  ============================================================
+
+  sudo mv /tmp/civo /usr/local/bin/civo
+
+  [sudo] password:
+  ```
+</details>
+
+Configurar el API key, la clave se encuentra en la sección [security](https://www.civo.com/account/security) de la cuenta de Civo:
+
+```bash
+{
+  civo apikey save gitops-flux <API_KEY>
+  civo apikey ls
+}
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  Saved the API Key gitops-flux as <API_KEY>
+
+  +-------------+---------+
+  | Name        | Default |
+  +-------------+---------+
+  | gitops-flux | <=====  |
+  +-------------+---------+
+  ```
+</details>
+
+Crear el cluster eligiendo el nombre, la región y el tamaño
+
+```bash
+civo kubernetes create demo-flux --size "g3.k3s.large" --save --switch --wait --region "LON1" --yes
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  Creating a 3 node k3s cluster of g3.k3s.large instances called demo-flux... \
+
+  Access your cluster with:
+  kubectl get node
+  The cluster demo-flux (992893cd-7c33-4490-933b-1576b9ad9462) has been created in 6 min 55 sec
+  ```
+</details>
+
+Listar nodos:
+
+```bash
+kubectl get node
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAME                                    STATUS   ROLES    AGE   VERSION
+  k3s-demo-flux-7743ec26-node-pool-2b6c   Ready    <none>   15m   v1.20.2+k3s1
+  k3s-demo-flux-7743ec26-node-pool-b232   Ready    <none>   15m   v1.20.2+k3s1
+  k3s-demo-flux-7743ec26-node-pool-cc1a   Ready    <none>   15m   v1.20.2+k3s1
+  ```
+</details>
+
+Listar pods:
+
+```bash
+kubectl get pods --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+  kube-system   helm-install-traefik-9qfsx                0/1     Completed   0          21m
+  kube-system   local-path-provisioner-7c458769fb-qd6k5   1/1     Running     0          21m
+  kube-system   metrics-server-86cbb8457f-vps2w           1/1     Running     0          21m
+  kube-system   svclb-traefik-zg85k                       2/2     Running     0          16m
+  kube-system   svclb-traefik-w57dg                       2/2     Running     0          16m
+  kube-system   traefik-6f9cbd9bd4-f7xj7                  1/1     Running     0          16m
+  kube-system   svclb-traefik-blqn2                       2/2     Running     0          16m
+  kube-system   coredns-854c77959c-s82cn                  1/1     Running     0          21m
   ```
 </details>
 
