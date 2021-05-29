@@ -187,7 +187,10 @@ Crear el cluster eligiendo el nombre, la región y el tamaño
 civo kubernetes create demo-flux \
   --size "g3.k3s.large" \
   --region "LON1" \
-  --save --merge --switch --wait \
+  --save \
+  --merge \
+  --switch \
+  --wait \
   --yes
 ```
 
@@ -239,6 +242,55 @@ kubectl get pods --all-namespaces
   kube-system   traefik-6f9cbd9bd4-f7xj7                  1/1     Running     0          16m
   kube-system   svclb-traefik-blqn2                       2/2     Running     0          16m
   kube-system   coredns-854c77959c-s82cn                  1/1     Running     0          21m
+  ```
+</details>
+
+Mostrar cluster:
+
+```bash
+civo kubernetes show demo-flux
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+            ID : 992893cd-7c33-4490-933b-1576b9ad9462
+          Name : demo-flux
+        Region : LON1
+        Nodes : 3
+          Size : g3.k3s.large
+        Status : ACTIVE
+      Version : 1.20.0-k3s1
+  API Endpoint : https://74.220.18.170:6443
+  External IP : 74.220.18.170
+  DNS A record : 992893cd-7c33-4490-933b-1576b9ad9462.k8s.civo.com
+
+  Pool (648b29):
+  +---------------------------------------+----+--------+------+-----------+------+----------+
+  | Name                                  | IP | Status | Size | Cpu Cores | Ram  | SSD disk |
+  +---------------------------------------+----+--------+------+-----------+------+----------+
+  | k3s-demo-flux-7743ec26-node-pool-2b6c |    | ACTIVE |      |         4 | 8192 |       15 |
+  | k3s-demo-flux-7743ec26-node-pool-b232 |    | ACTIVE |      |         4 | 8192 |       15 |
+  | k3s-demo-flux-7743ec26-node-pool-cc1a |    | ACTIVE |      |         4 | 8192 |       15 |
+  +---------------------------------------+----+--------+------+-----------+------+----------+
+  Labels:
+  kubernetes.civo.com/node-pool=648b2926-b2af-4196-9c43-c3791eb29122
+  kubernetes.civo.com/node-size=g3.k3s.large
+  ```
+</details>
+
+Eliminar cluster:
+
+```bash
+civo kubernetes remove demo-flux --yes
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  The Kubernetes cluster (demo-flux) has been deleted
   ```
 </details>
 
