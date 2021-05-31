@@ -423,6 +423,12 @@ Comprobar que la aplicación está en ejecución:
   <summary>Resultado</summary>
 
   ```
+  NAME                       READY   STATUS    RESTARTS   AGE
+  echobot-59df77f67f-4r4t4   1/1     Running   0          2m41s
+  echobot-59df77f67f-plzbr   1/1     Running   0          2m50s
+  echobot-59df77f67f-xm55j   1/1     Running   0          63s
+    
+  ghcr.io/sngular/gitops-echobot:v0.1.3
   ```
 
 </details>
