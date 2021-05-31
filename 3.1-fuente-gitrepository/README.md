@@ -78,7 +78,6 @@ flux bootstrap github \
 
 ```bash
 tree
-
 .
 └── clusters
     └── demo
