@@ -7,12 +7,6 @@ En esta sección veremos cómo Flux es capaz de desplegar en el cluster recursos
 * Acceso para administrar un cluster de Kubernetes >=v1.19
 * Tener instalado cliente Flux >=0.13.2
 
-## Clonar el repositorio con la guía de pasos
-
-```bash
-git clone https://github.com/$GITHUB_USER/gitops-flux-series.git
-```
-
 ## Exportar token de GitHub
 
 ```bash
