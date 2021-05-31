@@ -1,6 +1,8 @@
 # 3.1 Fuente GitRepository
 
-En esta sección veremos cómo Flux es capaz de desplegar en el cluster recursos alojados en un repositorio git.
+En esta sección se mostrará cómo Flux es capaz de desplegar en el cluster recursos alojados en múltiples repositorio git.
+
+Vídeo de la explicación y la demo completa en este [enlace](https://www.youtube.com/watch?v=QBHJPk874AM&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=3).
 
 ## Requisitos
 
@@ -37,20 +39,20 @@ flux bootstrap github \
   ✔ cloned repository
   ► generating component manifests
   ✔ generated component manifests
-  ✔ committed sync manifests to "main" ("1bba6481f9261943997b3eac77ddd95f37ad3ffa")
+  ✔ committed sync manifests to "main" ("5fa0702bbd4bdd3a0fe6731cf363cecba9227b0f")
   ► pushing component manifests to "https://github.com/sngular/gitops-flux-series-demo.git"
   ► installing components in "flux-system" namespace
   ✔ installed components
   ✔ reconciled components
   ► determining if source secret "flux-system/flux-system" exists
   ► generating source secret
-  ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDcW5fJvdPje3qMRDoW59hRD/gGIBnPUcEz2fKLJkRAo0tE+q8Suq20Lhmnqb5CB7EvXB1Nl56k62j/K6cMBXW6ERbZy4c47CkeMyee14G8ZdVJbOS3x0pvyl4swp2AFzL6SECPqbrVQZgSQmdbtUaRseS0hC50gOWEypCHY4bo3PQPcXbNhdN/G3oMNn3707+E7A58wsRL2pRsmevjRXIL66108FMT9lPjE0vi7l5JZ32MvuFWwP5rZM39qtLSeXheFa2jpcCBPEczxbdoqijhSzV0PNZqcb8Vbr974WVvaHitAdkhm4/aHJCRhiZuzzpbavoaKNHoNe24oQcIPnuJ
+  ✔ public key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOm1vvGKywX+iJy5Td2S+8F55OPYGJFpoE3sY4qck7wefDyV5KqJehqHz/c1E52HeCMo4ecWyugA+QoUkbqAN9db5hFL1uF51J8Sv7jZ8SpqZ2s50u3gX8IfBxWuWuhlekW1yylvJYDAN5mXYqb9GSDf3QfvhrPKsLCscuHJC0ctGzXFfQDJKHSgQ2PXdybaoVHISYNk/icnxCcbLxgIQEBcgBXtB5E4CM2nBi+Xqa1SqJJTZX3+FuEC3/3LoE1MkDKrH6kLyvIrbWm5u6j934b8ZhxXUiUz+YuJ5pJJuLyvXhowbF20XiHY5EgTyo3+1e3BmoQ/bTWcp0ISlQmmfD
   ✔ configured deploy key "flux-system-main-flux-system-./clusters/demo" for "https://github.com/sngular/gitops-flux-series-demo"
   ► applying source secret "flux-system/flux-system"
   ✔ reconciled source secret
   ► generating sync manifests
   ✔ generated sync manifests
-  ✔ committed sync manifests to "main" ("5fff63da327dd6b6b773e02d612f2f663d4c9d49")
+  ✔ committed sync manifests to "main" ("724be4ea6bfadd8e37c1c30463c38b2a9daeb9bf")
   ► pushing sync manifests to "https://github.com/sngular/gitops-flux-series-demo.git"
   ► applying sync manifests
   ✔ reconciled sync configuration
@@ -65,42 +67,34 @@ flux bootstrap github \
   ```
 </details>
 
-## Clonar repositorio de contenido
+## Clonar el repositorio de contenido
 
 ```bash
 {
   git clone git@github.com:$GITHUB_USER/gitops-flux-series-demo.git
   cd gitops-flux-series-demo
-  tree
 }
 ```
 
-<details>
-  <summary>Resultado</summary>
+```bash
+tree
 
-  ```
-  Cloning into 'gitops-flux-series-demo'...
-  remote: Enumerating objects: 13, done.
-  remote: Counting objects: 100% (13/13), done.
-  remote: Compressing objects: 100% (6/6), done.
-  remote: Total 13 (delta 0), reused 13 (delta 0), pack-reused 0
-  Receiving objects: 100% (13/13), 17.43 KiB | 17.43 MiB/s, done.
-  .
-  └── clusters
-      └── demo
-          └── flux-system
-              ├── gotk-components.yaml
-              ├── gotk-sync.yaml
-              └── kustomization.yaml
+.
+└── clusters
+    └── demo
+        └── flux-system
+            ├── gotk-components.yaml
+            ├── gotk-sync.yaml
+            └── kustomization.yaml
 
-  3 directories, 3 files
-  ```
-</details>
+3 directories, 3 files
+```
 
 ## Comprobar el funcionamiento de flux
 
 ```bash
-kubectl --namespace flux-system get pods
+kubectl get pods \
+  --namespace flux-system
 ```
 
 <details>
@@ -108,14 +102,14 @@ kubectl --namespace flux-system get pods
 
   ```
   NAME                                       READY   STATUS    RESTARTS   AGE
-  notification-controller-5c4d48f476-q7xz2   1/1     Running   0          9m25s
-  helm-controller-85bfd4959d-7bxj7           1/1     Running   0          9m26s
-  kustomize-controller-6977b8cdd4-p7jnm      1/1     Running   0          9m26s
-  source-controller-85fb864746-lsmq4         1/1     Running   0          9m25s
+  helm-controller-5df867d77f-kh8js           1/1     Running   0          3m51s
+  kustomize-controller-66467d9c5d-9cb5l      1/1     Running   0          3m52s
+  notification-controller-85f6bf878f-4pl7n   1/1     Running   0          3m51s
+  source-controller-f47cf45bf-29pdp          1/1     Running   0          3m51s
   ```
 </details>
 
-## Copiar los manifiestos del namespace gitops-series
+## Crear los manifiestos del namespace gitops-series
 
 Crear carpeta gitops-series:
 ```bash
@@ -133,45 +127,32 @@ metadata:
 EOF
 ```
 
-Subir el fichero al repositorio:
+```bash
+tree
+.
+└── clusters
+    └── demo
+        ├── flux-system
+        │   ├── gotk-components.yaml
+        │   ├── gotk-sync.yaml
+        │   └── kustomization.yaml
+        └── gitops-series
+            └── namespace.yaml
+
+4 directories, 4 files
+```
+
+Adicionar el fichero al repositorio:
 
 ```bash
 {
-    git add .
-    git commit -m 'Add gitops series namespace'
-    git push origin main
+  git add .
+  git commit -m 'Add gitops series namespace'
+  git push origin main
 }
 ```
 
-Comprobar que se ha realizado la sincronización con el repositorio del cluster
-
-```bash
-{
-    flux get sources git
-    echo
-    kubectl get namespaces
-}
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  NAME            READY   MESSAGE                                                            REVISION                                        SUSPENDED
-  flux-system     True    Fetched revision: main/dee7b07acf15605ea40f9c3530b0c2d371a791e9    main/dee7b07acf15605ea40f9c3530b0c2d371a791e9   False
-  
-  NAME              STATUS   AGE
-  default           Active   27m
-  kube-system       Active   27m
-  kube-public       Active   27m
-  kube-node-lease   Active   27m
-  flux-system       Active   17m
-  gitops-series     Active   4s
-  ```
-
-</details>
-
-Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación puede utilizar los siguienes comandos:
+Si no desea esperar el tiempo de espera definido en el ciclo de reconciliación puede utilizar el siguiente comandos:
 
 ```bash
 flux reconcile kustomization flux-system --with-source
@@ -185,25 +166,39 @@ flux reconcile kustomization flux-system --with-source
   ✔ GitRepository annotated
   ◎ waiting for GitRepository reconciliation
   ✔ GitRepository reconciliation completed
-  ✔ fetched revision main/dee7b07acf15605ea40f9c3530b0c2d371a791e9
+  ✔ fetched revision main/07b4d29335294f2299b9f3105abc83d34258181f
   ► annotating Kustomization flux-system in flux-system namespace
   ✔ Kustomization annotated
   ◎ waiting for Kustomization reconciliation
   ✔ Kustomization reconciliation completed
-  ✔ applied revision main/dee7b07acf15605ea40f9c3530b0c2d371a791e9
+  ✔ applied revision main/07b4d29335294f2299b9f3105abc83d34258181f
   ```
-
 </details>
 
+Comprobar que se ha realizado la sincronización con el repositorio:
+
+```bash
+flux get sources git --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE       NAME            READY   MESSAGE                                                         REVISION                                        SUSPENDED
+  flux-system     flux-system     True    Fetched revision: main/07b4d29335294f2299b9f3105abc83d34258181f main/07b4d29335294f2299b9f3105abc83d34258181f   False
+  ```
+</details>
 
 ## Añadir la fuente de origen de la aplicación
 
-Crear carpeta gitops-series:
+Crear carpeta para almacenar las fuentes de información:
+
 ```bash
 mkdir ./clusters/demo/sources/
 ```
 
-Crear el fichero del namespace:
+Crear el fichero con la fuente donde se encuentran los manifiestos de despliegue de la aplicación `echobot`:
 
 ```bash
 cat <<EOF > clusters/demo/sources/echobot.yaml
@@ -261,45 +256,53 @@ tree
           │   └── namespace.yaml
           └── sources
               └── echobot.yaml
+
+  5 directories, 5 files
   ```
 
 </details>
 
-Agregar los cambios en el repositorio
+Agregar los cambios en el repositorio:
 
 ```bash
 {
-    git add .
-    git commit -m 'Add echobot sources'
-    git push origin main
+  git add .
+  git commit -m 'Add echobot sources'
+  git push origin main
 }
 ```
 
-Consultar los cambios detectados por flux
+Consultar los cambios detectados por flux:
 
 ```bash
-kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
+watch -n1 "flux get sources git --all-namespaces"
 ```
 
 <details>
   <summary>Resultado</summary>
 
   ```
-  NAMESPACE       NAME          URL                                                    READY   STATUS                                                              AGE
-  flux-system     flux-system   ssh://git@github.com/sngular/gitops-flux-series-demo   True    Fetched revision: main/e0a9b9944729a9be55fe5f999a6524ca6d171026     59m
-  gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True    Fetched revision: v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d   16m
+  NAMESPACE       NAME            READY   MESSAGE                                                                 REVISION                                        SUSPENDED
+  flux-system     flux-system     True    Fetched revision: main/763f776ba34a74f398828140d0a8b1b765c723d3         main/763f776ba34a74f398828140d0a8b1b765c723d3   False
+  gitops-series   echobot         True    Fetched revision: v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d       v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d False
   ```
-
 </details>
 
-Puede ser que esté sincronizado el contenido del repositorio, pero todavía el controlador Kustomization no haya realizado su ciclo de reconciliación.
+> Si demora en ver los cambios utilice el siguiente comando para acelerar el proceso de sincronización:
 
-Comprobar que la aplicación está en ejecución:
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+Comprobar que la aplicación se encuentra en ejecución:
 
 ```bash
 {
   kubectl get pods --namespace gitops-series
-  kubectl get pods --namespace gitops-series --output 'jsonpath={..image}'
+  echo
+  kubectl get pods \
+    --namespace gitops-series \
+    --output jsonpath='{.items[0].spec.containers[0].image}'
 }
 ```
 
@@ -308,14 +311,16 @@ Comprobar que la aplicación está en ejecución:
 
   ```
   NAME                       READY   STATUS    RESTARTS   AGE
-  echobot-58f7955dd4-q2pxb   1/1     Running   0          4m48s
-  
-  ghcr.io/sngular/gitops-echobot:v0.1.0
+  echobot-58f7955dd4-htzbk   1/1     Running   0          9m52s
+
+  ghcr.io/sngular/gitops-echobot:v0.1.1
   ```
 
 </details>
 
-## Configurar semantic version para GitRepository
+## Utilizar semantic version para GitRepository
+
+Utilizar el siguiente fragmento de código para modificar el tipo de referencia de la fuente GitRepository:
 
 ```bash
 cat <<EOF > ./clusters/demo/sources/echobot.yaml
@@ -378,64 +383,66 @@ git diff
   ```
 </details>
 
-Añadir los cambios y hacer un commit al repositorio:
+Añadir los cambios al repositorio:
 
 ```bash
 {
-    git add .
-    git commit -m 'Setup semver to echobot sources'
-    git push origin main
+  git add .
+  git commit -m 'Setup semver to echobot sources'
+  git push origin main
 }
 ```
 
-Consultar los cambios detectados por flux
+Consultar los cambios detectados por flux:
 
 ```bash
-kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
+watch -n1 "flux get sources git --all-namespaces"
 ```
 
 <details>
   <summary>Resultado</summary>
 
   ```
-  NAMESPACE       NAME          URL                                                    READY   STATUS                                                              AGE
-  flux-system     flux-system   ssh://git@github.com/sngular/gitops-flux-series-demo   True    Fetched revision: main/e0a9b9944729a9be55fe5f999a6524ca6d171026     60m
-  gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True    Fetched revision: v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d   17m
-  flux-system     flux-system   ssh://git@github.com/sngular/gitops-flux-series-demo   True    Fetched revision: main/d5b12e7733068359bbeb6225fdc1c771043d7195     60m
-  flux-system     flux-system   ssh://git@github.com/sngular/gitops-flux-series-demo   True    Fetched revision: main/d5b12e7733068359bbeb6225fdc1c771043d7195     60m
-  gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True    Fetched revision: v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d   17m
-  gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          Unknown   reconciliation in progress                                          17m
-  gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True      Fetched revision: v0.1.3/4e2444fd6f8fe033249a56f6ac088a883fea0621   17m
+  NAMESPACE       NAME            READY   MESSAGE                                                                 REVISION                                        SUSPENDED
+  flux-system     flux-system     True    Fetched revision: main/47219f0e841e1906f0c1b6a0c3fd2d40ed8139b9         main/47219f0e841e1906f0c1b6a0c3fd2d40ed8139b9   False
+  gitops-series   echobot         True    Fetched revision: v0.2.0/7874f56f439b844d11d17c3be8acc41fefd0af31       v0.2.0/7874f56f439b844d11d17c3be8acc41fefd0af31 False
   ```
-
 </details>
-    
-Comprobar que la aplicación está en ejecución:
-    
+
+> Si demora en ver los cambios utilice el siguiente comando para acelerar el proceso de sincronización:
+
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+Comprobar los cambios en la aplicación:
+
 ```bash
 {
   kubectl get pods --namespace gitops-series
-  kubectl get pods --namespace gitops-series --output 'jsonpath={..image}'
+  echo
+  kubectl get pods \
+    --namespace gitops-series \
+    --output jsonpath='{.items[0].spec.containers[0].image}'
 }
 ```
-    
+
 <details>
   <summary>Resultado</summary>
 
   ```
   NAME                       READY   STATUS    RESTARTS   AGE
-  echobot-59df77f67f-4r4t4   1/1     Running   0          2m41s
-  echobot-59df77f67f-plzbr   1/1     Running   0          2m50s
-  echobot-59df77f67f-xm55j   1/1     Running   0          63s
-    
+  echobot-59df77f67f-5fj5s   1/1     Running   0          2m17s
+  echobot-59df77f67f-dgkh7   1/1     Running   0          38s
+  echobot-59df77f67f-h5n2m   1/1     Running   0          42s
+
   ghcr.io/sngular/gitops-echobot:v0.1.3
   ```
-
 </details>
 
 ## (Opcional) Desintalar Flux
 
-Si quieres desinstalar Flux puedes utilizar este comando:
+Si desea desinstalar Flux puede utilizar el siguiente comando:
 
 ```bash
 flux uninstall
