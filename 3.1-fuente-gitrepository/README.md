@@ -294,6 +294,27 @@ kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
 
 Puede ser que esté sincronizado el contenido del repositorio, pero todavía el controlador Kustomization no haya realizado su ciclo de reconciliación.
 
+Comprobar que la aplicación está en ejecución:
+
+```bash
+{
+  kubectl get pods --namespace gitops-series
+  kubectl get pods --namespace gitops-series --output 'jsonpath={..image}'
+}
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAME                       READY   STATUS    RESTARTS   AGE
+  echobot-58f7955dd4-q2pxb   1/1     Running   0          4m48s
+  
+  ghcr.io/sngular/gitops-echobot:v0.1.0
+  ```
+
+</details>
+
 ## Configurar semantic version para GitRepository
 
 ```bash
@@ -385,6 +406,23 @@ kubectl get gitrepositories.source.toolkit.fluxcd.io --all-namespaces --watch
   gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True    Fetched revision: v0.1.1/98af1d5298ba2fb8bfda3b363d1c661a2116de8d   17m
   gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          Unknown   reconciliation in progress                                          17m
   gitops-series   echobot       https://github.com/sngular/gitops-echobot.git          True      Fetched revision: v0.1.3/4e2444fd6f8fe033249a56f6ac088a883fea0621   17m
+  ```
+
+</details>
+    
+Comprobar que la aplicación está en ejecución:
+    
+```bash
+{
+  kubectl get pods --namespace gitops-series
+  kubectl get pods --namespace gitops-series --output 'jsonpath={..image}'
+}
+```
+    
+<details>
+  <summary>Resultado</summary>
+
+  ```
   ```
 
 </details>
