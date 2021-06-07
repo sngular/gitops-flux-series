@@ -189,7 +189,7 @@ kubectl --namespace gitops-series logs \
   ```
 </details>
 
-## Generar la llave GPG
+## Generar la clave GPG
 
 ```bash
 {
@@ -243,7 +243,7 @@ export KEY_FP=$(gpg --list-secret-keys "${KEY_NAME}" | grep --extended-regexp --
 
 Nota: En el ejemplo la huella digital es `5999BA5E167E0A7E60B4F66D13767E9916D79699`.
 
-## Adicionar la llave privada al cluster
+## Agregar la clave privada al cluster
 
 Crear el secreto de Kubernetes `sops-gpg` utilizando las claves públicas y privadas almacenadas en GPG:
 
@@ -254,7 +254,7 @@ kubectl create secret generic sops-gpg \
   --from-file=sops.asc=/dev/stdin
 ```
 
-> Este objeto se crea directamente en el cluster de forma excepcional para no almacenar la llave privada en el repositorio.
+> Este objeto se crea directamente en el cluster de forma excepcional para no almacenar la clave privada en el repositorio.
 
 Listar el secreto creado:
 
@@ -271,7 +271,7 @@ kubectl --namespace flux-system get secrets sops-gpg
   ```
 </details>
 
-Exportar a un fichero la llave pública y adicionarla al repositorio de código:
+Exportar a un fichero la clave pública y añadirla al repositorio de código:
 
 ```bash
 {
@@ -282,13 +282,13 @@ Exportar a un fichero la llave pública y adicionarla al repositorio de código:
 }
 ```
 
-## Eliminar la llave privada
+## Eliminar la clave privada
 
 ```bash
 gpg --delete-secret-keys "${KEY_FP}"
 ```
 
-Listar la llave privada
+Listar la clave privada
 
 ```bash
 gpg --list-secret-keys  "${KEY_NAME}"
@@ -302,7 +302,7 @@ gpg --list-secret-keys  "${KEY_NAME}"
   ```
 </details>
 
-Listar la llave pública
+Listar la clave pública
 
 ```bash
 gpg --list-public-keys  "${KEY_NAME}"
@@ -352,7 +352,7 @@ patchesStrategicMerge:
 EOF
 ```
 
-Adicione los cambios en el control de versiones:
+Añada los cambios en el control de versiones:
 
 ```bash
 {
@@ -387,7 +387,7 @@ Acelerar el ciclo de reconciliación:
 flux reconcile kustomization flux-system --with-source
 ```
 
-Comprobar el estado final el objeto Kustomization `flux-system`:
+Comprobar el estado final del objeto Kustomization `flux-system`:
 
 ```bash
 kubectl get kustomizations.kustomize.toolkit.fluxcd.io flux-system \
@@ -491,7 +491,7 @@ rUBJ2EK81lVhBqQymzdArgK5NuQ3+ybdBjVduyPe9A=,iv:VlEzRBkADpirBNxvdslcfDTkviSyjRR6Z
   ```
 </details>
 
-Adicionar el secreto encriptado al repositorio:
+Agrear el secreto encriptado al repositorio:
 
 ```bash
 {
