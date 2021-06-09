@@ -23,6 +23,7 @@ Al comando de instalación habitual se ha añadido el parámetro `--components-e
 ```bash
 flux bootstrap github \
   --owner=$GITHUB_USER \
+  --team=gitops-flux-series \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
@@ -73,7 +74,7 @@ flux bootstrap github \
 Comprobar que el despliegue se ha realizado correctamente.
 
 ```bash
-kubectl get pods --namespace flux-system
+watch kubectl get pods --namespace flux-system
 ```
 
 <details>
