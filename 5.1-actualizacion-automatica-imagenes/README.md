@@ -23,7 +23,6 @@ Al comando de instalación habitual se ha añadido el parámetro `--components-e
 ```bash
 flux bootstrap github \
   --owner=$GITHUB_USER \
-  --team=gitops-flux-series \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
@@ -633,7 +632,7 @@ Por último, comprobar que se ha actualizado la imagen a la versión más recien
 Si quieres desinstalar Flux puedes utilizar este comando:
 
 ```bash
-flux uninstall
+flux uninstall --silent
 ```
 
 > Compruebe que el repositorio en GitHub no ha sido eliminado.
