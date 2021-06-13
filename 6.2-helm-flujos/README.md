@@ -1,4 +1,4 @@
-# 6.2 Tests, actualizaciones y rollbacks con Helm
+# 6.2 Helm: tests, actualizaciones, rollbacks y dependencias
 
 En esta sección se mostrará la capacidad de Flux para orquestar flujos como el de test, actualización y rollback utilizando [Helm](https://helm.sh/).
 
