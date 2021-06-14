@@ -146,20 +146,20 @@ spec:
         name: echobot
     spec:
       containers:
-        - name: echobot
-          image: ghcr.io/sngular/gitops-echobot:v0.1.0
-          env:
-            - name: CHARACTER
-              value: "Esperando la actualización de imagen automágica!"
-            - name: SLEEP
-              value: "3s"
-          resources:
-            requests:
-              cpu: 10m
-              memory: 30Mi
-            limits:
-              cpu: 10m
-              memory: 30Mi
+      - name: echobot
+        image: ghcr.io/sngular/gitops-echobot:v0.1.0
+        env:
+        - name: CHARACTER
+          value: "Esperando la actualización de imagen automágica!"
+        - name: SLEEP
+          value: "3s"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 30Mi
 EOF
 ```
 
@@ -442,20 +442,20 @@ spec:
         name: echobot
     spec:
       containers:
-        - name: echobot
-          image: ghcr.io/sngular/gitops-echobot:v0.1.0  # {"\$imagepolicy": "flux-system:echobot"}
-          env:
-            - name: CHARACTER
-              value: "Esperando la actualización de imagen automágica!"
-            - name: SLEEP
-              value: "3s"
-          resources:
-            requests:
-              cpu: 10m
-              memory: 30Mi
-            limits:
-              cpu: 10m
-              memory: 30Mi
+      - name: echobot
+        image: ghcr.io/sngular/gitops-echobot:v0.1.0  # {"\$imagepolicy": "flux-system:echobot"}
+        env:
+        - name: CHARACTER
+          value: "Esperando la actualización de imagen automágica!"
+        - name: SLEEP
+          value: "3s"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 30Mi
 EOF
 ```
 
@@ -546,7 +546,26 @@ Images:
         author:
           email: fluxbot@gitops-series.com
           name: fluxbot
-        messageTemplate: '{{range .Updated.Images}}{{println .}}{{end}}'
+        messageTemplate: |-
+          {{ range .Updated.Images -}}
+          [demo] Automated image update **{{ $.AutomationObject }}** to **{{ .Identifier }}**
+          {{ end -}}
+          Automation name: {{ .AutomationObject }}
+
+          Files:
+          {{ range $filename, $_ := .Updated.Files -}}
+          - {{ $filename }}
+          {{ end -}}
+
+          Objects:
+          {{ range $resource, $_ := .Updated.Objects -}}
+          - {{ $resource.Kind }} {{ $resource.Name }}
+          {{ end -}}
+
+          Images:
+          {{ range .Updated.Images -}}
+          - {{.}}
+          {{ end -}}
       push:
         branch: main
     interval: 1m0s
