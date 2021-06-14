@@ -18,7 +18,10 @@ export GITHUB_USER=<your-username>
 
 ## Instalar Flux en el cluster
 
-Al comando de instalación habitual se ha añadido el parámetro `--components-extra` para incluir los controladores que permitirán automatizar el despliegue de las imágenes.
+Al comando de instalación habitual se le ha añadido los siguientes parámetros:
+
+* `--components-extra`: incluye los controladores que permitirán automatizar el despliegue de las imágenes.
+* `--read-write-key`: el token del repositorio lo crea en modo lectura/escritura permitiendo realizar commits desde Flux hacia el repo.
 
 ```bash
 flux bootstrap github \
@@ -92,7 +95,7 @@ watch kubectl get pods --namespace flux-system
 
 ## Clonar repositorio creado
 
-Clonar el repositorio que Flux está sincronizando con el cluster. 
+Clonar el repositorio que Flux está sincronizando con el cluster.
 
 ```bash
 {
@@ -393,7 +396,7 @@ flux get image policy --all-namespaces
 Para que Flux pueda actualizar la imagen del servicio `echobot` es necesario:
 
 * Añadir un marcador en el manifiesto de despliegue del servicio `echobot` para indicarle a Flux qué política debe aplicar al actualizar la imagen.
-* Crear un recurso de tipo `ImageUpdateAutomation`. Flux lo utilizará para actualizar mediante un commit el manifiesto de despliegue (contenido en el `GitRepository`) con la nueva etiqueta de la imagen. Además podremos personalizar el mensaje del commit que hará Flux con información útil. 
+* Crear un recurso de tipo `ImageUpdateAutomation`. Flux lo utilizará para actualizar mediante un commit el manifiesto de despliegue (contenido en el `GitRepository`) con la nueva etiqueta de la imagen. Además podremos personalizar el mensaje del commit que hará Flux con información útil.
 
 ### Añadir marcador para aplicar una política
 
@@ -639,10 +642,10 @@ Por último, comprobar que se ha actualizado la imagen a la versión más recien
   <summary>Resultado</summary>
 
   ```
-  NAMESPACE  	NAME   	READY	MESSAGE                                                                  	LATEST IMAGE
-  flux-system	echobot	True 	Latest image tag for 'ghcr.io/sngular/gitops-echobot' resolved to: v0.1.3	ghcr.io/sngular/gitops-echobot:v0.1.3
+  NAMESPACE       NAME    READY   MESSAGE                                                                  LATEST IMAGE
+  flux-system     echobot True    Latest image tag for 'ghcr.io/sngular/gitops-echobot' resolved to: v0.2.1ghcr.io/sngular/gitops-echobot:v0.2.1
 
-  ghcr.io/sngular/gitops-echobot:v0.1.3
+  ghcr.io/sngular/gitops-echobot:v0.2.1
   ```
 </details>
 
