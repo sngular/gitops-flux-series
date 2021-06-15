@@ -1,12 +1,23 @@
-# 6.2 Helm: tests, actualizaciones, rollbacks y dependencias
+# 6.2 Helm: actualizaciones, actualizaciones, rollbacks y dependencias
 
 En esta sección se mostrará la capacidad de Flux para orquestar flujos como el de test, actualización y rollback utilizando [Helm](https://helm.sh/).
 
 Los pasos a realizar serán los siguiente:
-  1. Desplegar el servicio echobot (Chart: v0.2.1, servicio: v0.1.3).
-  2. Intentar actualizar el chart del echobot a la versión v0.3.4 sin clumplir los requisitos de dependencia con la base de datos (flujo: test -> retries -> rollback).
-  3. Deshacer los cambios en el repositorio Git y reflejarlos en el cluster para preparar el siguiente escenario. (flujo: git revert -> sincronización)
-  4. Desplegar una instancia de [MongoDB](https://www.mongodb.com/) y actualizar el chart del echobot a v0.3.4 incluyendo una dependencia con la base de datos (flujo:  esperará a que su dependencia esté lista, ejecutará los tests y desplegará correctamente)
+  1. Desplegar el servicio [Echobot](https://github.com/sngular/gitops-echobot).
+
+      Chart: `v0.2.1` - Imagen: `v0.1.3`
+
+  2. Realizar despliegue con fallos.
+
+      Se realizará un intento de actualización del chart del Echobot a la versión `v0.3.4` sin cumplir los requisitos de dependencia con la base de datos (flujo: test -> retries -> rollback).
+
+  3. Revertir los cambios.
+
+      Restaurar los cambios en el repositorio Git y reflejarlos en el cluster para preparar el siguiente escenario. (flujo: git revert -> sincronización)
+
+  4. Desplegar echobot con dependencia a MongoDB
+
+      Desplegar una instancia de [MongoDB](https://www.mongodb.com/) y actualizar el chart del [echobot](https://github.com/sngular/gitops-echobot) a `v0.3.4`. Será definida la dependencia entre Echobot y MongoDB. (flujo:  esperará por la dependencia, ejecución de tests y nuevo despliegue)
 
 Vídeo de la explicación y la demo completa en este [enlace](https://www.youtube.com/watch?v=wQZ01-3vXBI&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=7).
 
@@ -194,10 +205,9 @@ flux reconcile kustomization flux-system --with-source
 ```
 
 ```bash
-{
-  flux reconcile source helm sngular --namespace=flux-system
-  flux reconcile helmrelease echobot --namespace=gitops-series
-}
+flux reconcile helmrelease echobot \
+  --namespace=gitops-series \
+  --with-source
 ```
 
 <details>
@@ -217,7 +227,7 @@ flux reconcile kustomization flux-system --with-source
   ```
 </details>
 
-Comprobar que el estado de los recursos desplegados es correcto, el campo `READY` debe ser `True`:
+Comprobar que el estado de los recursos desplegados sea el correcto. El campo `READY` debe ser `True`:
 
 ```bash
 flux get all --all-namespaces
@@ -229,16 +239,16 @@ flux get all --all-namespaces
   ```
   NAMESPACE       NAME                            READY   MESSAGE                                                         REVISION                                        SUSPENDED
   flux-system     gitrepository/flux-system       True    Fetched revision: main/adfa5f867305835559147e581ba567a3ec669fad main/adfa5f867305835559147e581ba567a3ec669fad   False
-  
+
   NAMESPACE       NAME                    READY   MESSAGE                                                         REVISION                                        SUSPENDED
   flux-system     helmrepository/sngular  True    Fetched revision: 36273ffdf3c89d5d9efdb8c7349202180eea1beb      36273ffdf3c89d5d9efdb8c7349202180eea1beb        False
-  
+
   NAMESPACE       NAME                            READY   MESSAGE                 REVISION        SUSPENDED
   flux-system     helmchart/gitops-series-echobot True    Fetched revision: 0.2.1 0.2.1           False
-  
+
   NAMESPACE       NAME                    READY   MESSAGE                                 REVISION        SUSPENDED
   gitops-series   helmrelease/echobot     True    Release reconciliation succeeded        0.2.1           False
-  
+
   NAMESPACE       NAME                            READY   MESSAGE                                                         REVISION                                        SUSPENDED
   flux-system     kustomization/flux-system       True    Applied revision: main/adfa5f867305835559147e581ba567a3ec669fad main/adfa5f867305835559147e581ba567a3ec669fad   False
   ```
@@ -262,7 +272,7 @@ kubectl get pods --namespace gitops-series
 
 ## Actualizar el echobot
 
-La nueva versión del servicio `echobot` (`0.2.1`) es capaz de introducir datos en una base de datos [MongoDB](https://www.mongodb.com/) si la variable de entorno `OUTPUT_TYPE` tiene el valor `mongodb`. Además la nueva versión del chart (`0.3.4`) ejecuta tests para comprobar la conexión con la base de datos. 
+La nueva versión del servicio `echobot` (`0.2.1`) es capaz de introducir datos en una base de datos [MongoDB](https://www.mongodb.com/) si la variable de entorno `OUTPUT_TYPE` tiene el valor `mongodb`. Además la nueva versión del chart (`0.3.4`) ejecuta tests para comprobar la conexión con la base de datos.
 
 Se actualizará el servicio `echobot` a la versión `0.2.1` y su `HelmRelease` a la versión `0.3.4`, además se añadirán los parámetros necesarios para conectar con una base de datos. Lo que debe ocurrir:
 
