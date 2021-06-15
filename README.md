@@ -7,7 +7,7 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [3.1 Fuente: GitRepository](3.1-fuente-gitrepository/README.md)
 - [4.1 Secretos: Mozilla Sops](4.1-secretos-mozilla-sops/README.md)
 - [5.1 Actualización automática de imágenes](5.1-actualizacion-automatica-imagenes/README.md)
-- [6.1 Helm: Integración con Helm](6.1-helm-instalacion-despliegue/README.md)
+- [6.1 Helm: Instalación y despliegues](6.1-helm-instalacion-despliegues/README.md)
 - [6.2 Helm: Actualizaciones, Tests, Rollbacks y Dependencias](6.2-helm-flujos/README.md)
 - 7.1 Notification Controller
 - 8.1 Monitorización
