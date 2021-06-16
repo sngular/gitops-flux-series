@@ -400,7 +400,7 @@ kubectl get pods \
 ## Actualización automática de los charts
 
 ```bash
-sed -i "" 's/0.2.1/0.x.x/' clusters/demo/gitops-series/echobot-helmrelease.yaml
+sed -i -- 's/0.2.1/0.x.x/' clusters/demo/gitops-series/echobot-helmrelease.yaml
 ```
 
 Adicionar los cambios al repositorio de código:
