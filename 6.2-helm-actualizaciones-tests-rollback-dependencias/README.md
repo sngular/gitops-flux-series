@@ -1,11 +1,13 @@
-# 6.2 Helm: actualizaciones, actualizaciones, rollbacks y dependencias
+# 6.2 Helm: actualizaciones, tests, rollbacks y dependencias
 
 En esta sección se mostrará la capacidad de Flux para orquestar flujos como el de test, actualización y rollback utilizando [Helm](https://helm.sh/).
 
 Los pasos a realizar serán los siguiente:
+
   1. Desplegar el servicio [Echobot](https://github.com/sngular/gitops-echobot).
 
-      Chart: `v0.2.1` - Imagen: `v0.1.3`
+      - Chart: `v0.2.1`
+      - Imagen: `v0.1.3`
 
   2. Realizar despliegue con fallos.
 
