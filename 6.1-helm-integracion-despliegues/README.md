@@ -1,4 +1,4 @@
-# 6.1 Helm: Instalación y despliegues
+# 6.1 Helm: Integración y despliegues
 
 En esta sección se mostrará la manera en la que Flux utiliza recursos para integrarse con [Helm](https://helm.sh/).
 
