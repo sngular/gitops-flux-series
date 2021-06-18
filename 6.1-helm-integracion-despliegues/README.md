@@ -96,6 +96,8 @@ Comprobar que los componentes han sido instalados:
 
 ## Añadir al cluster un repositorio de Helm charts como fuente
 
+Puede consultar la información del repositorio de Helm en [este enlace](https://github.com/sngular/gitops-helmrepository).
+
 Crear carpeta `sources`:
 ```bash
 mkdir -p ./clusters/demo/sources
@@ -155,10 +157,25 @@ Realice un commit con los cambios al repositorio de código:
 Sincronizar la información sin esperara al ciclo de reconciliación:
 
 ```bash
-flux reconcile source git flux-system
+flux reconcile kustomization flux-system --with-source
 ```
 
-Esperar a que se realice la sincronización del repositorio o indicarle a Flux que realice el ciclo de reconciliación de manera inmediata:
+Comprobar que el estado del objeto `HelmRepository` en el campo `READY` sea `True`:
+
+```bash
+flux get source helm --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE  	NAME   	READY	MESSAGE                                                   	REVISION                                	SUSPENDED
+  flux-system	sngular	True 	Fetched revision: 3f33f697ef0499ad9d54052b1e791c271df1dffd	3f33f697ef0499ad9d54052b1e791c271df1dffd	False
+  ```
+</details>
+
+En caso de no mostrarse información sobre el objeto `HelmRepository` utilice el siguiente comando para forzar la sincronización:
 
 ```bash
 flux reconcile source helm sngular
@@ -173,21 +190,6 @@ flux reconcile source helm sngular
   ◎ waiting for HelmRepository reconciliation
   ✔ HelmRepository reconciliation completed
   ✔ fetched revision 2152a065a288c2431275649995b3709e9d3739cb
-  ```
-</details>
-
-Comprobar que el estado del objeto `HelmRepository` en el campo `READY` sea `True`:
-
-```bash
-flux get source helm --all-namespaces
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  NAMESPACE  	NAME   	READY	MESSAGE                                                   	REVISION                                	SUSPENDED
-  flux-system	sngular	True 	Fetched revision: 3f33f697ef0499ad9d54052b1e791c271df1dffd	3f33f697ef0499ad9d54052b1e791c271df1dffd	False
   ```
 </details>
 
@@ -280,26 +282,7 @@ Sincronizar la información sin esperara al ciclo de reconciliación:
 flux reconcile source git flux-system
 ```
 
-Activar el ciclo de reconciliación del operador de helm:
-
-```bash
-flux reconcile helmrelease echobot \
-  --namespace=gitops-series
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  ► annotating HelmRelease echobot in gitops-series namespace
-  ✔ HelmRelease annotated
-  ◎ waiting for HelmRelease reconciliation
-  ✔ HelmRelease reconciliation completed
-  ✔ applied revision 0.2.1
-  ```
-</details>
-
-Listar los chart registrados por flux:
+Listar los chart registrados por Flux:
 
 ```bash
 flux get sources chart --all-namespaces
@@ -344,14 +327,72 @@ kubectl get pods --namespace gitops-series
   ```
 </details>
 
+Para activar el ciclo de reconciliación del operador de Helm podrá utilizar el siguiente comando:
+
+```bash
+flux reconcile helmrelease echobot \
+  --namespace=gitops-series
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  ► annotating HelmRelease echobot in gitops-series namespace
+  ✔ HelmRelease annotated
+  ◎ waiting for HelmRelease reconciliation
+  ✔ HelmRelease reconciliation completed
+  ✔ applied revision 0.2.1
+  ```
+</details>
+
+> Si tiene instalado el binario de Helm en su máquina podrá comproblar que se ha creado un objeto `release`:
+
+```bash
+helm list --namespace gitops-series
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART            APP VERSION
+  echobot gitops-series   1               2021-06-17 20:37:48.5570711 +0000 UTC   deployed        echobot-0.2.1    v0.1.3
+  ```
+</details>
+
 ## Modificar los valores del despliegue
 
 Adicionar la sección `values` para modificar los valores que vienen por defecto en la chart de helm:
 
 ```bash
-cat <<EOF >> ./clusters/demo/gitops-series/echobot-helmrelease.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: echobot
+  namespace: gitops-series
+spec:
+  chart:
+    spec:
+      chart: echobot
+      sourceRef:
+        kind: HelmRepository
+        name: sngular
+        namespace: flux-system
+      version: 0.2.1
+  interval: 1m0s
   values:
     replicaCount: 3
+    resources:
+      limits:
+        cpu: 40m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
 EOF
 ```
 
@@ -399,9 +440,31 @@ kubectl get pods \
 
 ## Actualización automática de los charts
 
+Modificar la versión del chart por una expresión acorde al versionado semántico.
+
 ```bash
 sed -i -- 's/0.2.1/0.x.x/' clusters/demo/gitops-series/echobot-helmrelease.yaml
 ```
+
+```bash
+git diff
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  --- a/clusters/demo/gitops-series/echobot-helmrelease.yaml
+  +++ b/clusters/demo/gitops-series/echobot-helmrelease.yaml
+  @@ -12,7 +12,7 @@ spec:
+          kind: HelmRepository
+          name: sngular
+          namespace: flux-system
+  -      version: 0.2.1
+  +      version: 0.x.x
+    interval: 1m0s
+  ```
+</details>
 
 Adicionar los cambios al repositorio de código:
 
