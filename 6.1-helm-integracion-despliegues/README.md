@@ -363,6 +363,8 @@ helm list --namespace gitops-series
 
 ## Modificar los valores del despliegue
 
+Para conocer las versiones y parámetros disponibles del chart Echobot consulte [este enlace](https://github.com/sngular/gitops-helmrepository/blob/main/charts/echobot/README.md).
+
 Adicionar la sección `values` para modificar los valores que vienen por defecto en la chart de helm:
 
 ```bash
@@ -382,6 +384,7 @@ spec:
         name: sngular
         namespace: flux-system
       version: 0.2.1
+  install: {}
   interval: 1m0s
   values:
     replicaCount: 3
@@ -395,6 +398,34 @@ spec:
 
 EOF
 ```
+
+Analizar las diferencias del nuevo fichero:
+
+```bash
+git diff
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  --- a/clusters/demo/gitops-series/echobot-helmrelease.yaml
+  +++ b/clusters/demo/gitops-series/echobot-helmrelease.yaml
+  @@ -15,4 +15,13 @@ spec:
+        version: 0.2.1
+    install: {}
+    interval: 1m0s
+  +  values:
+  +    replicaCount: 3
+  +    resources:
+  +      limits:
+  +        cpu: 40m
+  +        memory: 128Mi
+  +      requests:
+  +        cpu: 10m
+  +        memory: 64Mi
+  ```
+</details>
 
 Adicionar los cambios al repositorio de código:
 
@@ -440,10 +471,40 @@ kubectl get pods \
 
 ## Actualización automática de los charts
 
+Para conocer las versiones y parámetros disponibles del chart Echobot consulte [este enlace](https://github.com/sngular/gitops-helmrepository/blob/main/charts/echobot/README.md).
+
 Modificar la versión del chart por una expresión acorde al versionado semántico.
 
 ```bash
-sed -i -- 's/0.2.1/0.x.x/' clusters/demo/gitops-series/echobot-helmrelease.yaml
+cat <<EOF > ./clusters/demo/gitops-series/echobot-helmrelease.yaml
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: echobot
+  namespace: gitops-series
+spec:
+  chart:
+    spec:
+      chart: echobot
+      sourceRef:
+        kind: HelmRepository
+        name: sngular
+        namespace: flux-system
+      version: 0.x.x
+  install: {}
+  interval: 1m0s
+  values:
+    replicaCount: 3
+    resources:
+      limits:
+        cpu: 40m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+EOF
 ```
 
 ```bash
@@ -465,6 +526,15 @@ git diff
     interval: 1m0s
   ```
 </details>
+
+
+> Utilice el siguiente comando para ver el momento de la actualización de los objetos de Flux:
+
+```bash
+watch -n1 "flux get source chart --all-namespaces && echo \
+          && flux get helmrelease --all-namespaces && echo \
+          && kubectl get pods --namespace gitops-series"
+```
 
 Adicionar los cambios al repositorio de código:
 
@@ -517,7 +587,7 @@ flux get helmrelease --all-namespaces
 Utilice el siguiente comando para desintalar flux del cluster:
 
 ```bash
-flux uninstall
+flux uninstall --silent
 ```
 
 > Compruebe que el repositorio en GitHub no ha sido eliminado.
@@ -526,7 +596,6 @@ flux uninstall
   <summary>Resultado</summary>
 
   ```bash
-  Are you sure you want to delete Flux and its custom resource definitions: y█
   ► deleting components in flux-system namespace
   ✔ Deployment/flux-system/helm-controller deleted
   ✔ Deployment/flux-system/kustomize-controller deleted
