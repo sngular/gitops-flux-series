@@ -582,6 +582,131 @@ flux get helmrelease --all-namespaces
   ```
 </details>
 
+## (Opcional) Despliegues que incluyan CRD
+
+Flux te permite decidir en qué momento deseas actualizar los Custom Resource Definitions (CRD) de tus despliegues. Será utilizado el chart de [Kyverno](https://github.com/kyverno/kyverno/tree/main/charts/kyverno) para este ejemplo.
+
+Adicionar el repositorio de Kyverno
+
+```bash
+flux create source helm kyverno \
+  --url=https://kyverno.github.io/kyverno/ \
+  --interval=5m \
+  --namespace=flux-system \
+  --export > clusters/demo/sources/kyverno-helmrepository.yaml
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  ---
+  apiVersion: source.toolkit.fluxcd.io/v1beta1
+  kind: HelmRepository
+  metadata:
+    name: kyverno
+    namespace: flux-system
+  spec:
+    interval: 5m0s
+    url: https://kyverno.github.io/kyverno/
+  ```
+</details>
+
+Crear namespace `kyverno-system`:
+
+```bash
+mkdir -p ./clusters/demo/kyverno-system
+```
+
+```bash
+cat <<EOF > ./clusters/demo/kyverno-system/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno-system
+EOF
+```
+
+Crear el fichero helmrelease del servicio Kyverno:
+
+```bash
+flux create helmrelease kyverno \
+    --interval=1m \
+    --source=HelmRepository/kyverno.flux-system \
+    --chart=kyverno \
+    --chart-version="1.4.x" \
+    --namespace=kyverno-system \
+    --crds=CreateReplace \
+    --export > ./clusters/demo/kyverno-system/kyverno-helmrelease.yaml
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  ---
+  apiVersion: helm.toolkit.fluxcd.io/v2beta1
+  kind: HelmRelease
+  metadata:
+    name: kyverno
+    namespace: kyverno-system
+  spec:
+    chart:
+      spec:
+        chart: kyverno
+        sourceRef:
+          kind: HelmRepository
+          name: kyverno
+          namespace: flux-system
+        version: 1.4.x
+    install:
+      crds: Create
+    interval: 1m0s
+    upgrade:
+      crds: CreateReplace
+  ```
+</details>
+
+Listar la estructura del repositorio:
+
+```bash
+tree
+.
+└── clusters
+    └── demo
+        ├── flux-system
+        │   ├── gotk-components.yaml
+        │   ├── gotk-sync.yaml
+        │   └── kustomization.yaml
+        ├── gitops-series
+        │   ├── echobot-helmrelease.yaml
+        │   └── namespace.yaml
+        ├── kyverno-system
+        │   ├── kyverno-helmrelease.yaml
+        │   └── namespace.yaml
+        └── sources
+            ├── kyverno-helmrepository.yaml
+            └── sngular-helmrepository.yaml
+```
+
+Incluir los ficheros generados en el control de versiones:
+
+```bash
+{
+  git add .
+  git commit -m 'Adicionar los manifiestos de Kyverno'
+  git push origin main
+}
+```
+
+Observar la creación de los nuevos objetos adicionados
+
+```bash
+watch -n1 "flux get source chart --all-namespaces && echo \
+          && flux get helmrelease --all-namespaces && echo \
+          && kubectl get pods --namespace kyverno-system"
+```
+
 ## (Opcional) Desintalar Flux
 
 Utilice el siguiente comando para desintalar flux del cluster:
