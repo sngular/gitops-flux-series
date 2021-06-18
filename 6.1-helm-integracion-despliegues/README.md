@@ -279,7 +279,7 @@ Añadir los cambios en el repositorio:
 Sincronizar la información sin esperara al ciclo de reconciliación:
 
 ```bash
-flux reconcile kustomization flux-system --with-source
+flux reconcile source git flux-system
 ```
 
 Listar los chart registrados por Flux:
@@ -312,6 +312,21 @@ flux get helmrelease --all-namespaces
   ```
 </details>
 
+Listar los pods del servicio desplegado:
+
+```bash
+kubectl get pods --namespace gitops-series
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAME                      READY   STATUS    RESTARTS   AGE
+  echobot-bcfb77fcd-cqnqj   1/1     Running   0          7m42s
+  ```
+</details>
+
 Para activar el ciclo de reconciliación del operador de Helm podrá utilizar el siguiente comando:
 
 ```bash
@@ -328,21 +343,6 @@ flux reconcile helmrelease echobot \
   ◎ waiting for HelmRelease reconciliation
   ✔ HelmRelease reconciliation completed
   ✔ applied revision 0.2.1
-  ```
-</details>
-
-Listar los pods del servicio desplegado:
-
-```bash
-kubectl get pods --namespace gitops-series
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  NAME                      READY   STATUS    RESTARTS   AGE
-  echobot-bcfb77fcd-cqnqj   1/1     Running   0          7m42s
   ```
 </details>
 
@@ -385,6 +385,13 @@ spec:
   interval: 1m0s
   values:
     replicaCount: 3
+    resources:
+      limits:
+        cpu: 40m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
 
 EOF
 ```
