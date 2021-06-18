@@ -8,8 +8,8 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [4.1 Secretos: Mozilla Sops](4.1-secretos-mozilla-sops/README.md)
 - [5.1 Actualización automática de imágenes](5.1-actualizacion-automatica-imagenes/README.md)
 - [6.1 Helm: Integración y despliegues](6.1-helm-integracion-despliegues/README.md)
-- [6.2 Helm: Actualizaciones, Tests, Rollbacks y Dependencias](6.2-helm-actualizaciones-tests-rollbacks-dependencias/README.md)
-- 7.1 Notification Controller
+- [6.2 Helm: Tests, Rollbacks y Dependencias](6.2-helm-tests-rollbacks-dependencias/README.md)
+- 7.1 Notificaciones
 - 8.1 Monitorización
 
 Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](https://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
