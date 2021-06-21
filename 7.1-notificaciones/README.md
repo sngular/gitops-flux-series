@@ -1,5 +1,12 @@
 # 7.1 Notificaciones
 
+TODO:
+- [ ] crear secreto para webhook urls?
+- [ ] despliegue del `gitops-webhook` con GitRepository o con HelmRelease?
+- [ ] desplegar echobot con GitRepository o con HelmRelease?
+- [ ] forzar despliegue fallido
+- [ ] revisar configuración de alertas y la doc oficial para buscar novedades
+
 Durante esta guía se realizarán las configuraciones necesarias para habilitar las notificaciones de Flux y se explorarán distintas formas de utilizarlas para proveer de visibilidad en los despliegues del cluster.
 
 Flux soporta enviar alertas a canales de los siguientes servicios:
@@ -20,12 +27,6 @@ Los pasos que se seguirán durante la guía son los siguientes:
 5. Excluir algunas notificacones
 
 Vídeo de la explicación y la demo completa en este [vídeo](https://www.youtube.com/watch?v=Xm-FMVHJySY&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=8).
-
-TODO:
-- crear secreto para webhook urls?
-- capturas de proveedores
-- despliegue del `gitops-webhook` con GitRepository o con HelmRelease?
-- revisar configuración de alertas y la doc oficial para buscar novedades
 
 ## Requisitos
 
@@ -341,14 +342,13 @@ EOF
 
 ## Ejemplos de algunos proveedores
 
-Capturas de:
 - Discord
- 
+
 <details>
   <summary>Configuración</summary>
 
-  ```bash
-  cat <<EOF > ./cluster/namespaces/gitops-series/discord-provider.yaml
+  ```yaml
+  ---
   apiVersion: notification.toolkit.fluxcd.io/v1beta1
   kind: Provider
   metadata:
@@ -359,49 +359,56 @@ Capturas de:
     username: "Flux [demo-cluster]"
     channel: flux-notificaciones
     address: https://discord.com/api/webhooks/843196129700610088/XAgX4wPsIlyW8X4BVqkWcKotiI4gU12cgDw9ufjuNV_wXeLKATlXVilLKZXch6Jhubf6
-  EOF
   ```
   </details>
+
+![discord-ok](./images/discord-deploy-ok.png "Notificación de despliegue exitoso")
+![discord-fail](./images/discord-deploy-fail.png "Notificación de despliegue fallido")
+![discord-gitrepository](./images/discord-gitrepository-sync.png "Notificación de sincronización exitosa")
 
 - Teams
 
 <details>
   <summary>Configuración</summary>
 
-  ```bash
-  cat <<EOF > ./cluster/namespaces/gitops-series/discord-provider.yaml
+  ```yaml
+  ---
   apiVersion: notification.toolkit.fluxcd.io/v1beta1
   kind: Provider
   metadata:
-    name: discord
+    name: msteams
     namespace: gitops-series
   spec:
     type: msteams
     channel: flux-notificaciones
-    address: https://sngular.webhook.office.com/webhookb2/bc45ce8e-4388-43ba-bcde-abb7cfdeccd5@e4f11f01-14dc-4099-b8cf-c1fab2e9701f/IncomingWebhook/627185c776b543b0ab067b16fa9f5094/ad75f2eb-c917-494d-bac6-9c6226eba216
-  EOF
+    address: https://ORGANIZATION.webhook.office.com/WEBHOOK
   ```
 </details>
 
-- Slack (utilizar las de la doc oficial)
+![msteams-ok](./images/msteams-deploy-ok.png "Notificación de despliegue exitoso")
+![msteams-fail](./images/msteams-deploy-fail.png "Notificación de despliegue fallido")
+
+- Slack
 
 <details>
   <summary>Configuración</summary>
 
-  ```bash
-  cat <<EOF > ./cluster/namespaces/gitops-series/discord-provider.yaml
+  ```yaml
+  ---
   apiVersion: notification.toolkit.fluxcd.io/v1beta1
   kind: Provider
   metadata:
-    name: discord
+    name: slack
     namespace: gitops-series
   spec:
     type: slack
     channel: flux-notificaciones
     address:  https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
-  EOF
   ```
 </details>
+
+![slack-ok](./images/slack-deploy-ok.png "Notificación de despliegue exitoso")
+![slack-fail](./images/slack-deploy-fail.png "Notificación de despliegue fallido")
 
 ## (Opcional) Desintalar Flux
 
