@@ -725,7 +725,7 @@ flux get helmrelease --namespace gitops-series
 Utilice el siguiente comando para desintalar flux del cluster:
 
 ```bash
-flux uninstall
+flux uninstall --silent
 ```
 
 > Compruebe que el repositorio en GitHub no ha sido eliminado.
@@ -734,7 +734,6 @@ flux uninstall
   <summary>Resultado</summary>
 
   ```bash
-  Are you sure you want to delete Flux and its custom resource definitions: y█
   ► deleting components in flux-system namespace
   ✔ Deployment/flux-system/helm-controller deleted
   ✔ Deployment/flux-system/kustomize-controller deleted
