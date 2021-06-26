@@ -190,6 +190,14 @@ spec:
 EOF
 ```
 
+Utilice el siguiente comando para observar la creación de los nuevos objetos:
+
+```bash
+watch -n1 "flux get source chart --all-namespaces && echo \
+         && flux get helmrelease --all-namespaces && echo \
+         && kubectl get pods --namespace gitops-series"
+```
+
 Añadir los cambios en el repositorio:
 
 ```bash
