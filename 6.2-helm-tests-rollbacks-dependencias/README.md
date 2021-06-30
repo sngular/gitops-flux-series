@@ -1,4 +1,4 @@
-# 6.2 Helm: actualizaciones, tests, rollbacks y dependencias
+# 6.2 Helm: Tests, Rollbacks y Dependencias
 
 En esta sección se mostrará la capacidad de Flux para orquestar flujos como el de test, actualización y rollback utilizando [Helm](https://helm.sh/).
 
@@ -188,6 +188,14 @@ spec:
     image:
       tag: v0.1.3
 EOF
+```
+
+Utilice el siguiente comando para observar la creación de los nuevos objetos:
+
+```bash
+watch -n1 "flux get source chart --all-namespaces && echo \
+         && flux get helmrelease --all-namespaces && echo \
+         && kubectl get pods --namespace gitops-series"
 ```
 
 Añadir los cambios en el repositorio:
@@ -725,7 +733,7 @@ flux get helmrelease --namespace gitops-series
 Utilice el siguiente comando para desintalar flux del cluster:
 
 ```bash
-flux uninstall
+flux uninstall --silent
 ```
 
 > Compruebe que el repositorio en GitHub no ha sido eliminado.
@@ -734,7 +742,6 @@ flux uninstall
   <summary>Resultado</summary>
 
   ```bash
-  Are you sure you want to delete Flux and its custom resource definitions: y█
   ► deleting components in flux-system namespace
   ✔ Deployment/flux-system/helm-controller deleted
   ✔ Deployment/flux-system/kustomize-controller deleted
