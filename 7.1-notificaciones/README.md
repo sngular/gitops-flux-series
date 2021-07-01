@@ -4,49 +4,29 @@ TODO:
   - hacer demo de las exclusiones o sólo mencionarlo?
   - probar todo
 
-Durante esta guía se realizarán las configuraciones necesarias para habilitar las notificaciones de Flux y se explorarán distintas formas de utilizarlas para proveer de visibilidad en los despliegues del cluster y su estado.
+Durante la guía se realizarán las configuraciones necesarias para habilitar las notificaciones de Flux y se explorarán distintas formas de utilizarlas para brindar visibilidad durante los despliegues del estado del cluster.
 
-Flux soporta enviar alertas a canales de los siguientes servicios:
-
-- Google Chat
-- Microsoft Teams
-- Discord
-- Slack
-- Rocket
-- Webhook genérico
-- Webex
-- Sentry
-- Azure Event Hub
+Flux permite enviar alertas a las siguientes plataformas y servicios: *Google Chat, Microsoft Teams, Discord, Slack, Rocket, Webhook genérico, Webex, Sentry, Azure Event Hub*.
 
 Los pasos que se seguirán durante la guía son los siguientes:
 
-1. Desplegar el servicio `gitops-webhook` que permitirá observar las alertas recibidas en caso de que no se disponga de uno de los proveedores descritos arriba.
-2. Configurar un proveedor de notificaciones soportado por Flux
-3. Configurar las alertas que se desean recibir
-4. Desplegar la aplicación `echobot` y comprobar las alertas.
-5. Realizar una actualización fallida del `echobot` para comprobar alertas de error.
-6. Excluir algunas notificacones
+1. Desplegar el servicio [gitops-webhook](https://github.com/sngular/gitops-webhook).
+
+   Servicio que permitirá observar las alertas en caso de no disponer de alguno de los proveedores descritos arriba.
+
+2. Configurar un proveedor de notificaciones.
+3. Configurar las alertas que se desean recibir.
+4. Desplegar la aplicación [echobot](https://github.com/sngular/gitops-echobot).
+5. Comprobar el funcionamiento de las alertas.
+6. Mostrar alertas de error al intentar actualizar la aplicación [echobot](https://github.com/sngular/gitops-echobot).
+6. Excluir notificaciones no deseadas.
 
 Vídeo de la explicación y la demo completa en este [vídeo](https://www.youtube.com/watch?v=Xm-FMVHJySY&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=8).
 
 ## Requisitos
 
 * Acceso para administrar un cluster de Kubernetes >=v1.19
-* Tener instalado cliente Flux >=0.13.2 - [instrucciones](../2.1-instalacion-flux/readme#instalación-del-binario-flux)
-* Disponer de un proveedor de notificaciones soportado por Flux.
-* Disponer de una webhook url en el proveedor de notificaciones para recibir las alertas.
-
-  * Gitops-webhook: https://github.com/sngular/gitops-webhook
-
-  * Microsoft Teams:
-    * [Guía para crear un webhook](https://docs.microsoft.com/es-es/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
-  * Discord:
-    * [Guía para crear un servidor gratuito de Discord y un webhook](https://support.discord.com/hc/es/articles/204849977--C%C3%B3mo-creo-un-servidor-)
-    * [Guía para crear un webhook](https://support.discord.com/hc/es/articles/228383668-Introducci%C3%B3n-a-los-webhook)
-
-  * Slack:
-    * [Crear cuenta y espacio de trabajo](https://slack.com/intl/es-es/create)
-    * [Guía para crear un webhook](https://slack.com/intl/es-la/help/articles/115005265063-Webhooks-entrantes-para-Slack)
+* Tener instalado cliente Flux >=0.16.0 - [instrucciones](../2.1-instalacion-flux/readme#instalación-del-binario-flux)
 
 ## Exportar token de GitHub
 
@@ -65,7 +45,7 @@ flux bootstrap github \
   --repository=gitops-flux-series-demo \
   --branch=main \
   --private=false \
-  --path=./cluster/namespaces \
+  --path=./clusters/demo
 ```
 <details>
   <summary>Resultado</summary>
@@ -125,7 +105,7 @@ kubectl get pods --namespace flux-system
 
 ## Clonar repositorio creado
 
-Clonar el repositorio que Flux está sincronizando con el cluster. 
+Clonar el repositorio que Flux está sincronizando con el cluster.
 
 ```bash
 {
@@ -134,51 +114,70 @@ Clonar el repositorio que Flux está sincronizando con el cluster.
 }
 ```
 
-## Desplegar gitops-webhook
+## Desplegar servicio de notificaciones
 
-Se va a desplegar el servicio `gitops-webhook` que actuará como webhook genérico y recibirá las alertas enviadas por Flux.
+Se va a desplegar el servicio [gitops-webhook](https://github.com/sngular/gitops-webhook) que actuará como webhook genérico y recibirá las alertas enviadas por Flux.
 
-Crear carpeta para almacenar la fuente:
+Crear carpeta para almacenar las fuentes:
 
 ```bash
 mkdir ./clusters/demo/sources/
 ```
 
-Crear el fichero con la fuente donde se encuentran los manifiestos de despliegue del servicio `gitops-webhook`:
+Crear definición de HelmRepository para los [charts de Sngular](https://github.com/sngular/gitops-helmrepository):
 
 ```bash
-cat <<EOF > clusters/demo/sources/gitops-webhook.yaml
----
-apiVersion: source.toolkit.fluxcd.io/v1beta1
-kind: GitRepository
+flux create source helm sngular \
+  --url=https://sngular.github.io/gitops-helmrepository/ \
+  --interval=5m \
+  --namespace=flux-system \
+  --export > clusters/demo/sources/sngular-helmrepository.yaml
+```
+
+Crear carpeta para el sistema de notificaciones:
+
+```bash
+mkdir ./clusters/demo/notification-system/
+```
+
+Crear el namespace para las notificaciones:
+
+```bash
+cat <<EOF > ./clusters/demo/notification-system/namespace.yaml
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: gitops-webhook
-  namespace: gitops-series
-spec:
-  interval: 1m0s
-  url: https://github.com/sngular/gitops-webhook.git
-  ref:
-    tag: v0.2.0
-  ignore: |
-    # exclude all
-    /*
-    # include deploy dir
-    !/deploy
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
-kind: Kustomization
-metadata:
-  name: gitops-webhook
-  namespace: gitops-series
-spec:
-  interval: 10m0s
-  path: ./deploy
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: gitops-webhook
-  validation: client
+  name: notification-system
 EOF
+```
+
+Crear fichero HelmRelease para desplegar el servicio de notificaciones:
+
+```bash
+flux create helmrelease generic \
+  --interval=1m \
+  --source=HelmRepository/sngular.flux-system \
+  --chart=webhook \
+  --chart-version="0.1.0" \
+  --namespace=notification-system \
+  --export > clusters/demo/notification-system/generic-helmrelease.yaml
+```
+
+```bash
+tree
+
+.
+└── clusters
+    └── demo
+        ├── flux-system
+        │   ├── gotk-components.yaml
+        │   ├── gotk-sync.yaml
+        │   └── kustomization.yaml
+        ├── notification-system
+        │   ├── generic-helmrelease.yaml
+        │   └── namespace.yaml
+        └── sources
+            └── sngular-helmrepository.yaml
 ```
 
 Agregar cambios al repositorio:
@@ -186,9 +185,17 @@ Agregar cambios al repositorio:
 ```bash
 {
   git add .
-  git commit -m 'Add gitops-webhook sources'
+  git commit -m 'Deploy notification system'
   git push origin main
 }
+```
+
+Utilice el siguiente comando para conocer cómo van sucediendo los cambios:
+
+```bash
+watch -n1 "flux get source chart --all-namespaces && echo \
+&& flux get helmrelease --all-namespaces && echo \
+&& kubectl get pods --namespace notification-system"
 ```
 
 Acelerar el ciclo de reconciliación:
@@ -197,39 +204,39 @@ Acelerar el ciclo de reconciliación:
 flux reconcile kustomization flux-system --with-source
 ```
 
-Comprobar el despliegue:
+Para comprobar que el servicio está funcionando correctamente se utilizara el siguiente comando:
 
 ```bash
-{
-  flux get sources git --namespace gitops-series
-  kubectl get pods --namespace gitops-series
-}
+kubectl port-forward \
+  --namespace notification-system \
+  svc/generic-webhook 8080:80 &
 ```
 
-Para ver las alertas se debe habilitar el acceso al servicio con el siguiente comando:
+Ahora podrá consultar al siguiente enlace:
 
 ```bash
-kubectl port-forward --namespace gitops-series svc/gitops-webhook 8080:8080 &
+curl http://localhost:8080/all
 ```
 
-Y entrar con un navegador en `http://localhost:8080` o utilizar el comando `curl http://localhost:8080/all`. En estos momentos no existe ninguna notificación.
+<details>
+  <summary>Resultado</summary>
 
-Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
+  ```bash
+  Handling connection for 8080
+  Total notifications: 0
+  ```
+</details>
 
 ## Crear proveedor de notificaciones
 
-Es posible crear más de un proveedor si es necesario.
-
-`mkdir -p ./cluster/namespaces/gitops-series`
-
-1. `gitops-webhook`
+El primer proveedor de notificaciones a crear enviará los mensajes al sistema desplegado en el namespace `notification-system`.
 
 ```bash
-flux create alert-provider gitops-webhook \
-  --namespace gitops-series \
+flux create alert-provider generic \
+  --namespace notification-system \
   --type generic \
-  --address "https://webhook.gitops-series/webhook" \
-  --export > ./cluster/namespaces/gitops-series/generic-provider.yaml
+  --address "http://generic-webhook.notification-system/webhook" \
+  --export > ./clusters/demo/notification-system/generic-provider.yaml
 ```
 
 <details>
@@ -240,13 +247,246 @@ flux create alert-provider gitops-webhook \
   apiVersion: notification.toolkit.fluxcd.io/v1beta1
   kind: Provider
   metadata:
-    name: gitops-webhook
-    namespace: gitops-series
+    name: generic
+    namespace: notification-system
   spec:
-    address: https://webhook.gitops-series/webhook
+    address: http://generic-webhook.notification-system/webhook
     type: generic
   ```
 </details>
+
+Adicionar los cambios al repositorio:
+
+```bash
+{
+  git add .
+  git commit -m 'Add generic provider'
+  git push origin main
+}
+```
+
+```bash
+  flux get alert-providers --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE               NAME    READY   MESSAGE
+  notification-system     generic True    Initialized
+  ```
+</details>
+
+## Crear alertas
+
+Crear una alerta que permita permita conocer cuando un objeto de flux se modifica:
+
+```bash
+flux create alert flux-components \
+  --namespace notification-system \
+  --provider-ref generic \
+  --event-severity info \
+  --event-source "Kustomization/*,GitRepository/*,HelmRepository/*,HelmRelease/*" \
+  --export > ./clusters/demo/notification-system/flux-components-alerts.yaml
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```yaml
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Alert
+  metadata:
+    name: flux-components
+    namespace: notification-system
+  spec:
+    eventSeverity: info
+    eventSources:
+    - kind: Kustomization
+      name: '*'
+    - kind: GitRepository
+      name: '*'
+    - kind: HelmRepository
+      name: '*'
+    - kind: HelmRelease
+      name: '*'
+    providerRef:
+      name: generic
+  ```
+</details>
+
+```bash
+{
+  git add .
+  git commit -m 'Add flux-components alerts'
+  git push origin main
+}
+```
+
+```bash
+flux get alerts --all-namespaces
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  NAMESPACE               NAME            READY   MESSAGE         SUSPENDED
+notification-system     flux-components True    Initialized     False
+  ```
+</details>
+
+## Desplegar servicio echobot
+
+Crear carpeta y namespace `gitops-series`:
+
+```bash
+mkdir -p ./clusters/demo/gitops-series
+```
+
+```bash
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-series
+EOF
+```
+
+Crear el fichero HelmRelease asociado al servicio [echobot](https://github.com/sngular/gitops-helmrepository/blob/main/charts/echobot/README.md):
+
+```bash
+flux create helmrelease echobot \
+  --interval=1m \
+  --source=HelmRepository/sngular.flux-system \
+  --chart=echobot \
+  --chart-version="0.3.4" \
+  --namespace=gitops-series \
+  --export > clusters/demo/gitops-series/echobot-helmrelease.yaml
+```
+
+Añadir los cambios en el repositorio:
+
+```bash
+{
+  git add .
+  git commit -m 'Deploy echobot service'
+  git push origin main
+}
+```
+
+Sincronizar la información sin esperar a al ciclo de reconciliación:
+
+```bash
+{
+  flux reconcile kustomization flux-system --with-source
+}
+```
+
+Comprobar que han llegado las alertas al canal de Discord y al servicio `gitops-webhook`:
+
+```bash
+curl http://localhost:8080/all
+```
+
+Listar los pods del servicio desplegado:
+
+```bash
+kubectl get pods --namespace gitops-series
+```
+
+Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
+
+## Eliminar un objetos con alertas
+
+```bash
+kubectl delete hr -n gitops-series echobot
+```
+
+Sincronizar la información sin esperar a al ciclo de reconciliación:
+
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+Comprobar que han llegado las alertas al canal de Discord y al servicio `gitops-webhook`:
+
+```bash
+curl http://localhost:8080/all
+```
+
+Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
+
+## (Opcional) Desintalar Flux
+
+Si quieres desinstalar Flux puedes utilizar este comando:
+
+```bash
+flux uninstall --silent
+```
+
+> Compruebe que el repositorio en GitHub no ha sido eliminado.
+
+<details>
+  <summary>Resultado</summary>
+
+  ```
+  ► deleting components in flux-system namespace
+  ✔ Deployment/flux-system/helm-controller deleted
+  ✔ Deployment/flux-system/kustomize-controller deleted
+  ✔ Deployment/flux-system/notification-controller deleted
+  ✔ Deployment/flux-system/source-controller deleted
+  ✔ Service/flux-system/notification-controller deleted
+  ✔ Service/flux-system/source-controller deleted
+  ✔ Service/flux-system/webhook-receiver deleted
+  ✔ NetworkPolicy/flux-system/allow-egress deleted
+  ✔ NetworkPolicy/flux-system/allow-scraping deleted
+  ✔ NetworkPolicy/flux-system/allow-webhooks deleted
+  ✔ ServiceAccount/flux-system/helm-controller deleted
+  ✔ ServiceAccount/flux-system/kustomize-controller deleted
+  ✔ ServiceAccount/flux-system/notification-controller deleted
+  ✔ ServiceAccount/flux-system/source-controller deleted
+  ✔ ClusterRole/crd-controller-flux-system deleted
+  ✔ ClusterRoleBinding/cluster-reconciler-flux-system deleted
+  ✔ ClusterRoleBinding/crd-controller-flux-system deleted
+  ► deleting toolkit.fluxcd.io finalizers in all namespaces
+  ✔ GitRepository/flux-system/flux-system finalizers deleted
+  ✔ Kustomization/flux-system/flux-system finalizers deleted
+  ► deleting toolkit.fluxcd.io custom resource definitions
+  ✔ CustomResourceDefinition/alerts.notification.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/buckets.source.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/gitrepositories.source.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/helmcharts.source.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/helmreleases.helm.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/helmrepositories.source.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/kustomizations.kustomize.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/providers.notification.toolkit.fluxcd.io deleted
+  ✔ CustomResourceDefinition/receivers.notification.toolkit.fluxcd.io deleted
+  ✔ Namespace/flux-system deleted
+  ✔ uninstall finished
+  ```
+</details>
+
+
+
+## Pendiente de organizar
+
+* Disponer de una url en el proveedor de notificaciones para recibir las alertas (webhook).
+
+  * Gitops-webhook: https://github.com/sngular/gitops-webhook
+
+  * Microsoft Teams:
+    * [Guía para crear un webhook](https://docs.microsoft.com/es-es/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
+  * Discord:
+    * [Guía para crear un servidor gratuito de Discord y un webhook](https://support.discord.com/hc/es/articles/204849977--C%C3%B3mo-creo-un-servidor-)
+    * [Guía para crear un webhook](https://support.discord.com/hc/es/articles/228383668-Introducci%C3%B3n-a-los-webhook)
+
+  * Slack:
+    * [Crear cuenta y espacio de trabajo](https://slack.com/intl/es-es/create)
+    * [Guía para crear un webhook](https://slack.com/intl/es-la/help/articles/115005265063-Webhooks-entrantes-para-Slack)
+
+
 
 2. Discord
 
@@ -267,7 +507,7 @@ flux create alert-provider discord \
   --channel flux-notificaciones \
   --username "Flux [demo-cluster]" \
   --secret-ref discord-webhook-url \
-  --export > ./cluster/namespaces/gitops-series/discord-provider.yaml
+  --export > ./clusters/demo/gitops-series/discord-provider.yaml
 ```
 
 <details>
@@ -290,59 +530,7 @@ EOF
   ```
 </details>
 
-```bash
-flux get alert-providers --namespace gitops-series
-```
 
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  NAME            READY   MESSAGE
-  discord         True    Initialized
-  gitops-webhook  True    Initialized
-  ```
-</details>
-
-## Crear alertas
-
-1. `gitops-webhook`
-
-```bash
-flux create alert gitops-webhook-alerts \
-  --namespace gitops-series \
-  --provider-ref generic \
-  --event-severity info \
-  --event-source "Kustomization/*,GitRepository/*,HealmRepository/*,HelmRelease/*" \
-  --export > ./cluster/namespaces/gitops-series/gitops-webhook-alerts.yaml
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```bash
-  ---
-  apiVersion: notification.toolkit.fluxcd.io/v1beta1
-  kind: Alert
-  metadata:
-    name: gitops-webhook-alerts
-    namespace: gitops-series
-  spec:
-    summary: "demo cluster notification"
-    eventSeverity: info
-    eventSources:
-    - kind: Kustomization
-      name: '*'
-    - kind: GitRepository
-      name: '*'
-    - kind: HealmRepository
-      name: '*'
-    - kind: HelmRelease
-      name: '*'
-    providerRef:
-      name: gitops-webhook
-  ```
-</details>
 
 2. Discord
 
@@ -380,240 +568,6 @@ flux create alert discord-alerts \
       name: discord
   ```
 </details>
-
-```bash
-flux get alerts --namespace gitops-series
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  NAME                   READY   MESSAGE         SUSPENDED
-  discord-alerts         True    Initialized     False
-  gitops-webhook-alerts  True    Initialized     False
-  ```
-</details>
-
-## Desplegar echobot
-
-Añadir al cluster el repositorio de Helm charts de Sngular como fuente:
-
-```bash
-flux create source helm sngular \
-  --url=https://sngular.github.io/gitops-helmrepository/ \
-  --interval=5m \
-  --namespace=flux-system \
-  --export > clusters/demo/sources/sngular-helmrepository.yaml
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  ---
-  apiVersion: source.toolkit.fluxcd.io/v1beta1
-  kind: Helmepository
-  metadata:
-    name: sngular
-    namespace: flux-system
-  spec:
-    interval: 5m0s
-    url: https://sngular.github.io/gitops-helmrepository/
-  ```
-</details>
-
-Crear el fichero del namespace:
-
-```bash
-cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: gitops-series
-EOF
-```
-
-Crear el fichero `helmrelease` a través del comando `flux create`:
-
-```bash
-cat <<EOF > ./clusters/demo/gitops-series/echobot-helmrelease.yaml
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: echobot
-  namespace: gitops-series
-spec:
-  interval: 1m0s
-  chart:
-    spec:
-      chart: echobot
-      version: 0.2.1
-      sourceRef:
-        kind: HelmRepository
-        name: sngular
-        namespace: flux-system
-  values:
-    image:
-      tag: v0.1.3
-EOF
-```
-
-Añadir los cambios en el repositorio:
-
-```bash
-{
-  git add .
-  git commit -m 'Add echobot repository and release file'
-  git push origin main
-}
-```
-
-Sincronizar la información sin esperar a al ciclo de reconciliación:
-
-```bash
-{
-  flux reconcile kustomization flux-system --with-source
-  flux reconcile helmrelease echobot --namespace=gitops-series --with-source
-}
-```
-
-Comprobar que han llegado las alertas al canal de Discord y al servicio `gitops-webhook`:
-
-```bash
-curl http://localhost:8080/all
-```
-
-Listar los pods del servicio desplegado:
-
-```bash
-kubectl get pods --namespace gitops-series
-```
-
-Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
-
-## Realizar una actualización fallida del `echobot`
-
-Crear el manifiesto de actualización con los cambios para controlar la actualización:
-
-```bash
-cat <<EOF > clusters/demo/gitops-series/echobot-helmrelease.yaml
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: echobot
-  namespace: gitops-series
-spec:
-  chart:
-    spec:
-      chart: echobot
-      sourceRef:
-        kind: HelmRepository
-        name: sngular
-        namespace: flux-system
-      version: 0.3.4
-  interval: 1m0s
-  test:
-    enable: true
-  upgrade:
-    remediation:
-      retries: 1
-  values:
-    image:
-      tag: v0.2.1
-    env:
-    - name: OUTPUT_TYPE
-      value: mongodb
-    - name: MESSAGE
-      value: Hola MongoDB!
-    - name: MONGODB_DATABASE
-      value: "logdb"
-    mongodb:
-      existingSecret: echobot-mongodb-uri
-EOF
-```
-
-Comprobar los cambios respecto al fichero anterior:
-
-```bash
-git diff
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```bash
-  diff --git a/clusters/demo/gitops-series/echobot-helmrelease.yaml b/clusters/demo/gitops-series/echobot-helmrelease.yaml
-  index dfa77ab..51db8e8 100644
-  --- a/clusters/demo/gitops-series/echobot-helmrelease.yaml
-  +++ b/clusters/demo/gitops-series/echobot-helmrelease.yaml
-  @@ -5,15 +5,29 @@ metadata:
-     name: echobot
-     namespace: gitops-series
-   spec:
-  -  interval: 1m0s
-     chart:
-       spec:
-         chart: echobot
-  -      version: 0.2.1
-         sourceRef:
-           kind: HelmRepository
-           name: sngular
-           namespace: flux-system
-  +      version: 0.3.4
-  +  interval: 1m0s
-  +  test:
-  +    enable: true
-  +  upgrade:
-  +    remediation:
-  +      retries: 3
-     values:
-       image:
-  -      tag: v0.1.3
-  +      tag: v0.2.1
-  +    env:
-  +    - name: OUTPUT_TYPE
-  +      value: mongodb
-  +    - name: MESSAGE
-  +      value: Hola MongoDB!
-  +    - name: MONGODB_DATABASE
-  +      value: "logdb"
-  +    mongodb:
-  +      existingSecret: echobot-mongodb-uri
-  ```
-</details>
-
-Añadir los cambios en el repositorio:
-
-```bash
-{
-  git add .
-  git commit -m 'Update echobot helmrelease to v0.3.4'
-  git push origin main
-}
-```
-
-Sincronizar la información sin esperar a al ciclo de reconciliación:
-
-```bash
-flux reconcile kustomization flux-system --with-source
-```
-
-Comprobar que han llegado las alertas al canal de Discord y al servicio `gitops-webhook`:
-
-```bash
-curl http://localhost:8080/all
-```
-
-Listar los pods del servicio desplegado:
-
-```bash
-kubectl get pods --namespace gitops-series
-```
-
-Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
 
 ## Crear alertas con exclusiones
 
@@ -725,53 +679,3 @@ EOF
 
 ![slack-ok](./images/slack-deploy-ok.png "Notificación de despliegue exitoso")
 ![slack-fail](./images/slack-deploy-fail.png "Notificación de despliegue fallido")
-
-## (Opcional) Desintalar Flux
-
-Si quieres desinstalar Flux puedes utilizar este comando:
-
-```bash
-flux uninstall --silent
-```
-
-> Compruebe que el repositorio en GitHub no ha sido eliminado.
-
-<details>
-  <summary>Resultado</summary>
-
-  ```
-  ► deleting components in flux-system namespace
-  ✔ Deployment/flux-system/helm-controller deleted
-  ✔ Deployment/flux-system/kustomize-controller deleted
-  ✔ Deployment/flux-system/notification-controller deleted
-  ✔ Deployment/flux-system/source-controller deleted
-  ✔ Service/flux-system/notification-controller deleted
-  ✔ Service/flux-system/source-controller deleted
-  ✔ Service/flux-system/webhook-receiver deleted
-  ✔ NetworkPolicy/flux-system/allow-egress deleted
-  ✔ NetworkPolicy/flux-system/allow-scraping deleted
-  ✔ NetworkPolicy/flux-system/allow-webhooks deleted
-  ✔ ServiceAccount/flux-system/helm-controller deleted
-  ✔ ServiceAccount/flux-system/kustomize-controller deleted
-  ✔ ServiceAccount/flux-system/notification-controller deleted
-  ✔ ServiceAccount/flux-system/source-controller deleted
-  ✔ ClusterRole/crd-controller-flux-system deleted
-  ✔ ClusterRoleBinding/cluster-reconciler-flux-system deleted
-  ✔ ClusterRoleBinding/crd-controller-flux-system deleted
-  ► deleting toolkit.fluxcd.io finalizers in all namespaces
-  ✔ GitRepository/flux-system/flux-system finalizers deleted
-  ✔ Kustomization/flux-system/flux-system finalizers deleted
-  ► deleting toolkit.fluxcd.io custom resource definitions
-  ✔ CustomResourceDefinition/alerts.notification.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/buckets.source.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/gitrepositories.source.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/helmcharts.source.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/helmreleases.helm.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/helmrepositories.source.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/kustomizations.kustomize.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/providers.notification.toolkit.fluxcd.io deleted
-  ✔ CustomResourceDefinition/receivers.notification.toolkit.fluxcd.io deleted
-  ✔ Namespace/flux-system deleted
-  ✔ uninstall finished
-  ```
-</details>
