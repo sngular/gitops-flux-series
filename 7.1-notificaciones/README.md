@@ -37,7 +37,7 @@ export GITHUB_USER=<your-username>
 
 ## Instalar Flux en el cluster
 
-Al comando de instalación habitual se ha añadido el flag `--components-extra` para incluir los controladores que nos ayudarán a automatizar el despliegue de imágenes.
+Utilice el comando `bootstrap` para instalar los componentes de flux en el cluster y crear el repositorio en GitHub:
 
 ```bash
 flux bootstrap github \
@@ -209,7 +209,7 @@ Para comprobar que el servicio está funcionando correctamente se utilizara el s
 ```bash
 kubectl port-forward \
   --namespace notification-system \
-  svc/generic-webhook 8080:80 &
+  svc/generic-webhook 8080:80 > /dev/null 2>&1 &
 ```
 
 Ahora podrá consultar al siguiente enlace:
@@ -222,21 +222,35 @@ curl http://localhost:8080/all
   <summary>Resultado</summary>
 
   ```bash
-  Handling connection for 8080
   Total notifications: 0
   ```
 </details>
 
 ## Crear proveedor de notificaciones
 
+Crear carpeta y namespace `gitops-series`:
+
+```bash
+mkdir -p ./clusters/demo/gitops-series
+```
+
+```bash
+cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitops-series
+EOF
+```
+
 El primer proveedor de notificaciones a crear enviará los mensajes al sistema desplegado en el namespace `notification-system`.
 
 ```bash
 flux create alert-provider generic \
-  --namespace notification-system \
+  --namespace gitops-series \
   --type generic \
   --address "http://generic-webhook.notification-system/webhook" \
-  --export > ./clusters/demo/notification-system/generic-provider.yaml
+  --export > ./clusters/demo/gitops-series/generic-provider.yaml
 ```
 
 <details>
@@ -248,7 +262,7 @@ flux create alert-provider generic \
   kind: Provider
   metadata:
     name: generic
-    namespace: notification-system
+    namespace: gitops-series
   spec:
     address: http://generic-webhook.notification-system/webhook
     type: generic
@@ -266,15 +280,15 @@ Adicionar los cambios al repositorio:
 ```
 
 ```bash
-  flux get alert-providers --all-namespaces
+flux get alert-providers --all-namespaces
 ```
 
 <details>
   <summary>Resultado</summary>
 
   ```
-  NAMESPACE               NAME    READY   MESSAGE
-  notification-system     generic True    Initialized
+  NAMESPACE       NAME    READY   MESSAGE
+  gitops-series   generic True    Initialized
   ```
 </details>
 
@@ -283,12 +297,12 @@ Adicionar los cambios al repositorio:
 Crear una alerta que permita permita conocer cuando un objeto de flux se modifica:
 
 ```bash
-flux create alert flux-components \
-  --namespace notification-system \
+flux create alert generic \
+  --namespace gitops-series \
   --provider-ref generic \
   --event-severity info \
-  --event-source "Kustomization/*,GitRepository/*,HelmRepository/*,HelmRelease/*" \
-  --export > ./clusters/demo/notification-system/flux-components-alerts.yaml
+  --event-source "HelmRepository/*,HelmRelease/*" \
+  --export > ./clusters/demo/gitops-series/generic-alerts.yaml
 ```
 
 <details>
@@ -298,15 +312,11 @@ flux create alert flux-components \
   apiVersion: notification.toolkit.fluxcd.io/v1beta1
   kind: Alert
   metadata:
-    name: flux-components
-    namespace: notification-system
+    name: generic
+    namespace: gitops-series
   spec:
     eventSeverity: info
     eventSources:
-    - kind: Kustomization
-      name: '*'
-    - kind: GitRepository
-      name: '*'
     - kind: HelmRepository
       name: '*'
     - kind: HelmRelease
@@ -319,7 +329,7 @@ flux create alert flux-components \
 ```bash
 {
   git add .
-  git commit -m 'Add flux-components alerts'
+  git commit -m 'Add alert crd'
   git push origin main
 }
 ```
@@ -332,27 +342,12 @@ flux get alerts --all-namespaces
   <summary>Resultado</summary>
 
   ```
-  NAMESPACE               NAME            READY   MESSAGE         SUSPENDED
-notification-system     flux-components True    Initialized     False
+  NAMESPACE       NAME      READY   MESSAGE         SUSPENDED
+  gitops-series   generic   True    Initialized     False
   ```
 </details>
 
 ## Desplegar servicio echobot
-
-Crear carpeta y namespace `gitops-series`:
-
-```bash
-mkdir -p ./clusters/demo/gitops-series
-```
-
-```bash
-cat <<EOF > ./clusters/demo/gitops-series/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: gitops-series
-EOF
-```
 
 Crear el fichero HelmRelease asociado al servicio [echobot](https://github.com/sngular/gitops-helmrepository/blob/main/charts/echobot/README.md):
 
@@ -379,9 +374,7 @@ Añadir los cambios en el repositorio:
 Sincronizar la información sin esperar a al ciclo de reconciliación:
 
 ```bash
-{
-  flux reconcile kustomization flux-system --with-source
-}
+flux reconcile kustomization flux-system --with-source
 ```
 
 Comprobar que han llegado las alertas al canal de Discord y al servicio `gitops-webhook`:
@@ -417,6 +410,95 @@ curl http://localhost:8080/all
 ```
 
 Si se desea eliminar las alertas utilizar el comando `curl http://localhost:8080/clear`.
+
+## (Opcional) Enviar alertas a Discord
+
+Crear un secreto con el campo `address` para almacenar la url del webhook:
+
+```bash
+kubectl create secret generic discord-webhook-url \
+  --namespace gitops-series \
+  --from-literal="address=https://discord.com/api/webhooks/843196129700610088/XAgX4wPsIlyW8X4BVqkWcKotiI4gU12cgDw9ufjuNV_wXeLKATlXVilLKZXch6Jhubf6"
+```
+
+Crear el provider de Discord:
+
+```bash
+flux create alert-provider discord \
+  --namespace gitops-series \
+  --type discord \
+  --channel flux-notificaciones \
+  --username "Flux [demo-cluster]" \
+  --secret-ref discord-webhook-url \
+  --export > ./clusters/demo/gitops-series/discord-provider.yaml
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```yaml
+  ---
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Provider
+  metadata:
+    name: discord
+    namespace: gitops-series
+  spec:
+    type: discord
+    channel: flux-notificaciones
+    secretRef:
+      name: discord-webhook-url
+    username: Flux [demo-cluster]
+EOF
+  ```
+</details>
+
+Configurar las alertas que serán enviadas a Discord
+
+```bash
+flux create alert discord \
+  --namespace gitops-series \
+  --provider-ref discord \
+  --event-severity info \
+  --event-source "HelmRelease/*" \
+  --export > ./clusters/demo/gitops-series/discord-alerts.yaml
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```bash
+  ---
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Alert
+  metadata:
+    name: discord
+    namespace: gitops-series
+  spec:
+    eventSeverity: info
+    eventSources:
+    - kind: Kustomization
+      name: '*'
+    - kind: GitRepository
+      name: '*'
+    - kind: HealmRepository
+      name: '*'
+    - kind: HelmRelease
+      name: '*'
+    providerRef:
+      name: discord
+  ```
+</details>
+
+Añadir los cambios en el repositorio:
+
+```bash
+{
+  git add .
+  git commit -m 'Add provider and alerts for discord'
+  git push origin main
+}
+```
 
 ## (Opcional) Desintalar Flux
 
@@ -490,84 +572,6 @@ flux uninstall --silent
 
 2. Discord
 
-Crear un secreto con el campo `address` para almacenar la url del webhook:
-
-```bash
-kubectl create secret generic discord-webhook-url \
-  --namespace gitops-series \
-  --from-literal="address=https://discord.com/api/webhooks/843196129700610088/XAgX4wPsIlyW8X4BVqkWcKotiI4gU12cgDw9ufjuNV_wXeLKATlXVilLKZXch6Jhubf6"
-```
-
-Crear el provider de Discord:
-
-```bash
-flux create alert-provider discord \
-  --namespace gitops-series \
-  --type discord \
-  --channel flux-notificaciones \
-  --username "Flux [demo-cluster]" \
-  --secret-ref discord-webhook-url \
-  --export > ./clusters/demo/gitops-series/discord-provider.yaml
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```yaml
-  ---
-  apiVersion: notification.toolkit.fluxcd.io/v1beta1
-  kind: Provider
-  metadata:
-    name: discord
-    namespace: gitops-series
-  spec:
-    type: discord
-    channel: flux-notificaciones
-    secretRef:
-      name: discord-webhook-url
-    username: Flux [demo-cluster]
-EOF
-  ```
-</details>
-
-
-
-2. Discord
-
-```bash
-flux create alert discord-alerts \
-  --namespace gitops-series \
-  --provider-ref discord \
-  --event-severity info \
-  --event-source "Kustomization/*,GitRepository/*,HealmRepository/*,HelmRelease/*" \
-  --export > ./cluster/namespaces/gitops-series/discord-alerts.yaml
-```
-
-<details>
-  <summary>Resultado</summary>
-
-  ```bash
-  ---
-  apiVersion: notification.toolkit.fluxcd.io/v1beta1
-  kind: Alert
-  metadata:
-    name: discord-alerts
-    namespace: gitops-series
-  spec:
-    eventSeverity: info
-    eventSources:
-    - kind: Kustomization
-      name: '*'
-    - kind: GitRepository
-      name: '*'
-    - kind: HealmRepository
-      name: '*'
-    - kind: HelmRelease
-      name: '*'
-    providerRef:
-      name: discord
-  ```
-</details>
 
 ## Crear alertas con exclusiones
 
