@@ -1,9 +1,5 @@
 # 7.1 Notificaciones
 
-TODO:
-  - hacer demo de las exclusiones o sólo mencionarlo?
-  - probar todo
-
 Durante la guía se realizarán las configuraciones necesarias para habilitar las notificaciones de Flux y se explorarán distintas formas de utilizarlas para brindar visibilidad durante los despliegues del estado del cluster.
 
 Flux permite enviar alertas a las siguientes plataformas y servicios: *Google Chat, Microsoft Teams, Discord, Slack, Rocket, Webhook genérico, Webex, Sentry, Azure Event Hub*.
