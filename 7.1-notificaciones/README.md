@@ -15,7 +15,6 @@ Los pasos que se seguirán durante la guía son los siguientes:
 4. Desplegar la aplicación [echobot](https://github.com/sngular/gitops-echobot).
 5. Comprobar el funcionamiento de las alertas.
 6. Mostrar alertas de error al intentar actualizar la aplicación [echobot](https://github.com/sngular/gitops-echobot).
-6. Excluir notificaciones no deseadas.
 
 Vídeo de la explicación y la demo completa en este [vídeo](https://www.youtube.com/watch?v=Xm-FMVHJySY&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=8).
 
