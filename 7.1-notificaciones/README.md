@@ -544,3 +544,75 @@ flux uninstall --silent
   ✔ uninstall finished
   ```
 </details>
+
+## Ejemplos de algunos proveedores
+
+- Discord
+
+<details>
+  <summary>Configuración</summary>
+
+  ```yaml
+  ---
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Provider
+  metadata:
+    name: discord
+    namespace: gitops-series
+  spec:
+    channel: flux-notificaciones
+    secretRef:
+      name: discord-webhook-url
+    type: discord
+    username: Flux [demo-cluster]
+  ```
+  </details>
+
+![discord-ok](./images/discord-deploy-ok.png "Notificación de despliegue exitoso")
+![discord-fail](./images/discord-deploy-fail.png "Notificación de despliegue fallido")
+![discord-gitrepository](./images/discord-gitrepository-sync.png "Notificación de sincronización exitosa")
+
+- Teams
+
+<details>
+  <summary>Configuración</summary>
+
+  ```yaml
+  ---
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Provider
+  metadata:
+    name: msteams
+    namespace: gitops-series
+  spec:
+    type: msteams
+    channel: flux-notificaciones
+    address: https://ORGANIZATION.webhook.office.com/WEBHOOK
+  ```
+</details>
+
+![msteams-ok](./images/msteams-deploy-ok.png "Notificación de despliegue exitoso")
+![msteams-fail](./images/msteams-deploy-fail.png "Notificación de despliegue fallido")
+
+- Slack
+
+<details>
+  <summary>Configuración</summary>
+
+  ```yaml
+  ---
+  apiVersion: notification.toolkit.fluxcd.io/v1beta1
+  kind: Provider
+  metadata:
+    name: slack
+    namespace: gitops-series
+  spec:
+    type: slack
+    channel: flux-notificaciones
+    address:  https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+  ```
+</details>
+
+![slack-ok](./images/slack-deploy-ok.png "Notificación de despliegue exitoso")
+![slack-fail](./images/slack-deploy-fail.png "Notificación de despliegue fallido")
+
