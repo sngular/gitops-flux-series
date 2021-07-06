@@ -153,7 +153,7 @@ flux create helmrelease generic \
   --interval=1m \
   --source=HelmRepository/sngular.flux-system \
   --chart=webhook \
-  --chart-version="0.1.0" \
+  --chart-version="0.1.1" \
   --namespace=notification-system \
   --export > clusters/demo/notification-system/generic-helmrelease.yaml
 ```
@@ -351,7 +351,7 @@ flux create helmrelease echobot \
   --interval=1m \
   --source=HelmRepository/sngular.flux-system \
   --chart=echobot \
-  --chart-version="0.3.4" \
+  --chart-version="0.3.5" \
   --namespace=gitops-series \
   --export > clusters/demo/gitops-series/echobot-helmrelease.yaml
 ```
@@ -472,12 +472,6 @@ flux create alert discord \
   spec:
     eventSeverity: info
     eventSources:
-    - kind: Kustomization
-      name: '*'
-    - kind: GitRepository
-      name: '*'
-    - kind: HealmRepository
-      name: '*'
     - kind: HelmRelease
       name: '*'
     providerRef:
@@ -494,6 +488,29 @@ Añadir los cambios en el repositorio:
   git push origin main
 }
 ```
+
+Sincronice el estado de las alertas y providers adicionados
+
+```bash
+{
+  flux reconcile alert-provider discord --namespace gitops-series
+  flux reconcile alert discord --namespace gitops-series
+}
+```
+
+<details>
+  <summary>Resultado</summary>
+
+  ```bash
+  ► annotating Provider discord in gitops-series namespace
+  ✔ Provider annotated
+  ◎ waiting for reconciliation
+  ✔ Provider reconciliation completed
+  ► annotating Alert discord in gitops-series namespace
+  ✔ Alert annotated
+  ✔ Alert reconciliation completed
+  ```
+</details>
 
 ## (Opcional) Desintalar Flux
 
