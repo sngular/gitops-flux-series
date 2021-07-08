@@ -2,10 +2,12 @@
 
 **TODO**
 
-- [ ] Carga de dashboards en Grafana
+- [ ] Carga de dashboards en Grafana [Manu]
+- [ ] Suspender release [Manu]
+- [ ] Enseñar los logs con Loki (controllers) [Enrique]
+  - [ ] Query
+  - [ ] Live
 - [ ] Desplegar algún servicio más?
-- [ ] Suspender release
-- [ ] Enseñar los logs con Loki (controllers)
 
 A lo largo de esta guía se desplegará el stack de monitorización Loki + Grafana + Prometheus con el objetivo de mostrar la importancia de la observabilidad en los despliegues realizados con Flux. Además se pondrán en marcha algunos servicios para obtener métricas y logs, y demostrar la importancia de tener visibilidad sobre las actividades y eventos que ocurren en el cluster.
 
