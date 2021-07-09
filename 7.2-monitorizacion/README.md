@@ -248,6 +248,47 @@ Hacer un port forwarding y acceder a la url `http://localhost:3000`:
 kubectl port-forward --namespace monitoring service/loki-stack-grafana 3000:80
 ```
 
+## Consulta de logs
+
+### Consultas estáticas
+
+Para realizar consultas sobre los logs entrar en la sección `Explore` de Grafana, seleccionar `Loki` como fuente de datos y utilizar el cuadro de texto para introducir las consultas.
+
+Buscar trazas por nombre de la aplicación o por namespace:
+
+```
+{job="flux-system/helm-controller"} |= "echobot"
+{job="flux-system/helm-controller"} |= "gitops-series"
+```
+
+Buscar trazas de error:
+
+```
+{job="flux-system/source-controller"} |~ "error"
+{job="flux-system/kustomize-controller"} |~ "error"
+{job="flux-system/helm-controller"} |~ "error"
+{job="flux-system/notification-controller"} |~ "error"
+```
+
+Buscar trazaas de una aplicación:
+
+```
+# Trazas de error
+{app="echobot"} |~ "error"
+
+# Trazas http de un servicio
+{app="my-service"} |~ "http"
+{app="my-service"} |~ "status=404"
+{app="my-service"} |~ "status=500"
+{app="my-service"} |~ "status=40.*"
+{app="my-service"} |~ "status=50.*"
+{app="gitops-webhook"} |~ "path=/webhook"
+```
+
+### En tiempo real
+
+Para ver logs en tiempo real entrar en la sección `Explore` de Grafana, seleccionar `Loki` como fuente de datos, introducir la consulta en el cuadro de texto y pulsar el boton `Live` que aparece en la parte superior derecha de la pantalla.
+
 ## (Opcional) Desintalar Flux
 
 Utilice el siguiente comando para desintalar flux del cluster:
