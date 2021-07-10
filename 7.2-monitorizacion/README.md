@@ -108,7 +108,7 @@ Comprobar que los componentes han sido instalados:
 Crear los directorios necesarios:
 
 ```bash
-mkdir -p ./clusters/demo/{sources,monitoring,gitops-series}
+mkdir -p ./clusters/demo/{sources,monitoring/dashboards,gitops-series}
 ```
 
 Crear los namespaces:
@@ -188,8 +188,26 @@ spec:
   install: {}
   interval: 1m0s
   values:
+    promtail:
+      enabled: false
     grafana:
       enabled: true
+      sidecar:
+        dashboards:
+          enabled: true
+        datasources:
+          enabled: true
+    prometheus:
+      enabled: true
+      nodeExporter:
+        enabled: false
+      pushgateway:
+        enabled: false
+      alertmanager:
+        enabled: false
+      server:
+        global:
+          scrape_interval: 10s
 EOF
 
 cat <<EOF > ./clusters/demo/gitops-series/echobot-helmrelease.yaml
@@ -214,6 +232,33 @@ spec:
       tag: v0.2.1
 EOF
 }
+```
+
+Adicionar flux dashboards:
+
+```bash
+{
+  FLUX_DASHBOARDS_BASE_URL="https://raw.githubusercontent.com/sngular/gitops-flux-series/monitoring/7.2-monitorizacion/dashboards"
+  FLUX_DASHBOARDS_CLUSTER="clusters/demo/monitoring/dashboards"
+  curl ${FLUX_DASHBOARDS_BASE_URL}/cluster.json > ${FLUX_DASHBOARDS_CLUSTER}/cluster.json
+  curl ${FLUX_DASHBOARDS_BASE_URL}/control-plane.json > ${FLUX_DASHBOARDS_CLUSTER}/control-plane.json
+}
+```
+
+```bash
+cat <<EOF > ./clusters/demo/monitoring/dashboards/kustomization.yaml
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+commonLabels:
+  grafana_dashboard: "1"
+configMapGenerator:
+- name: grafana-dashboards
+  files:
+  - control-plane.json
+  - cluster.json
+EOF
 ```
 
 Realice un commit con los cambios al repositorio de código:
