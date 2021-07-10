@@ -2,7 +2,7 @@
 
 **TODO**
 
-- [ ] Carga de dashboards en Grafana [Manu]
+- [X] Carga de dashboards en Grafana [Manu]
 - [ ] Suspender release [Manu]
 - [x] Enseñar los logs con Loki (controllers) [Enrique]
   - [x] Query
