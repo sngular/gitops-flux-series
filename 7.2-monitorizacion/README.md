@@ -2,8 +2,9 @@
 
 **TODO**
 
-- [X] Carga de dashboards en Grafana [Manu]
-- [ ] Suspender release [Manu]
+- [x] Carga de dashboards en Grafana [Manu]
+- ~~[ ] Suspender release [Manu]~~
+- [x] Error reconciliar helmrelease [Manu]
 - [x] Enseñar los logs con Loki (controllers) [Enrique]
   - [x] Query
   - [x] Live
@@ -287,11 +288,43 @@ Obtener contraseña:
 kubectl get secret --namespace monitoring loki-stack-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
-Hacer un port forwarding y acceder a la url `http://localhost:3000`:
+Hacer un port forwarding y acceder a la url <http://localhost:3000>:
 
 ```bash
 kubectl port-forward --namespace monitoring service/loki-stack-grafana 3000:80
 ```
+
+### Adicionar un HelmRelease erróneo
+
+Actualizar echobot release con datos incorrectos:
+
+```bash
+flux create helmrelease wrong-chart \
+    --interval=1m \
+    --source=HelmRepository/sngular.flux-system \
+    --chart=wrong-chart \
+    --chart-version="0.0.0" \
+    --namespace=gitops-series \
+    --export > clusters/demo/gitops-series/wrong-chart-helmrelease.yaml
+```
+
+Adicionar cambios al control de versiones:
+
+```bash
+{
+  git add .
+  git commit -m 'Add a wrong helmrelease'
+  git push origin main
+}
+```
+
+Sincronizar la información sin esperara al ciclo de reconciliación:
+
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+Consulte en el [dashboard de Flux](http://localhost:3000/d/flux-cluster/flux-cluster-stats) y observe el HelmRelease adicionado, su estado será `Not Ready` y en color rojo.
 
 ## Consulta de logs
 
