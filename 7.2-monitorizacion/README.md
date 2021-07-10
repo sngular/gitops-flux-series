@@ -3,7 +3,7 @@
 **TODO**
 
 - [x] Carga de dashboards en Grafana [Manu]
-- ~~[ ] Suspender release [Manu]~~
+- [ ] ~~Suspender release [Manu]~~
 - [x] Error reconciliar helmrelease [Manu]
 - [x] Enseñar los logs con Loki (controllers) [Enrique]
   - [x] Query
