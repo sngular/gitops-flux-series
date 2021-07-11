@@ -228,9 +228,6 @@ spec:
         kind: HelmRepository
         name: sngular
         namespace: flux-system
-  values:
-    image:
-      tag: v0.2.1
 EOF
 }
 ```
@@ -239,7 +236,7 @@ Adicionar flux dashboards:
 
 ```bash
 {
-  FLUX_DASHBOARDS_BASE_URL="https://raw.githubusercontent.com/sngular/gitops-flux-series/monitoring/7.2-monitorizacion/dashboards"
+  FLUX_DASHBOARDS_BASE_URL="https://raw.githubusercontent.com/sngular/gitops-flux-series/main/7.2-monitorizacion/dashboards"
   FLUX_DASHBOARDS_CLUSTER="clusters/demo/monitoring/dashboards"
   curl ${FLUX_DASHBOARDS_BASE_URL}/cluster.json > ${FLUX_DASHBOARDS_CLUSTER}/cluster.json
   curl ${FLUX_DASHBOARDS_BASE_URL}/control-plane.json > ${FLUX_DASHBOARDS_CLUSTER}/control-plane.json
