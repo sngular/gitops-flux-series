@@ -1,15 +1,5 @@
 # 7.2 Monitorización
 
-**TODO**
-
-- [x] Carga de dashboards en Grafana [Manu]
-- [ ] ~~Suspender release [Manu]~~
-- [x] Error reconciliar helmrelease [Manu]
-- [x] Enseñar los logs con Loki (controllers) [Enrique]
-  - [x] Query
-  - [x] Live
-- [ ] ~~Desplegar algún servicio más?~~
-
 A lo largo de esta guía se desplegará el stack de monitorización Loki + Grafana + Prometheus con el objetivo de mostrar la importancia de la observabilidad en los despliegues realizados con Flux. Además se pondrán en marcha algunos servicios para obtener métricas y logs, y demostrar la importancia de tener visibilidad sobre las actividades y eventos que ocurren en el cluster.
 
 Vídeo de la explicación y la demo completa en este [enlace](https://www.youtube.com/watch?v=9IwXibOfSDk&list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj&index=9).
@@ -163,6 +153,16 @@ flux create source helm sngular \
   spec:
     interval: 5m0s
     url: https://grafana.github.io/helm-charts
+
+  ---
+  apiVersion: source.toolkit.fluxcd.io/v1beta1
+  kind: HelmRepository
+  metadata:
+    name: sngular
+    namespace: flux-system
+  spec:
+    interval: 5m0s
+    url: https://sngular.github.io/gitops-helmrepository/
   ```
 </details>
 
@@ -342,6 +342,8 @@ Buscar trazas por nombre de la aplicación o por namespace:
 Buscar trazas de error:
 
 ```
+{job="flux-system/helm-controller"} |~ "not ready"
+
 {job="flux-system/source-controller"} |~ "error"
 {job="flux-system/kustomize-controller"} |~ "error"
 {job="flux-system/helm-controller"} |~ "error"
