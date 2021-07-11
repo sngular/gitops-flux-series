@@ -10,7 +10,7 @@ A continuación se pueden consultar las guías de las diferentes secciones de la
 - [6.1 Helm: Integración y despliegues](6.1-helm-integracion-despliegues/README.md)
 - [6.2 Helm: Tests, Rollbacks y Dependencias](6.2-helm-tests-rollbacks-dependencias/README.md)
 - [7.1 Notificaciones](7.1-notificaciones/README.md)
-- 8.1 Monitorización
+- [7.2 Monitorizacion](7.2-monitorizacion/README.md)
 
 Nota: cada guía corresponde con un vídeo que podrá encontrar en la [lista de reproducción de YouTube](https://www.youtube.com/playlist?list=PLuQL-CB_D1E7gRzUGlchvvmGDF1rIiWkj).
 
