@@ -232,7 +232,23 @@ EOF
 }
 ```
 
-Adicionar flux dashboards:
+Realice un commit con los cambios al repositorio de código:
+
+```bash
+{
+  git add .
+  git commit -m 'Add resources'
+  git push origin main
+}
+```
+
+Sincronizar la información sin esperara al ciclo de reconciliación:
+
+```bash
+flux reconcile kustomization flux-system --with-source
+```
+
+## Adicionar flux dashboards
 
 ```bash
 {
@@ -264,7 +280,7 @@ Realice un commit con los cambios al repositorio de código:
 ```bash
 {
   git add .
-  git commit -m 'Add resources'
+  git commit -m 'Add grafana dashboards'
   git push origin main
 }
 ```
