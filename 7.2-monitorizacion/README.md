@@ -190,7 +190,7 @@ spec:
   interval: 1m0s
   values:
     promtail:
-      enabled: false
+      enabled: true
     grafana:
       enabled: true
       sidecar:
